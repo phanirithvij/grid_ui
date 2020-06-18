@@ -5,7 +5,8 @@ export default function Home() {
 	return (
 		<div>
 			Home page In a sense
-			<Link to="/nodes">Helo</Link>
+			<br />
+			<Link to="/nodes">Nodes</Link>
 		</div>
 	);
 }

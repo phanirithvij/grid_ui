@@ -1,0 +1,22 @@
+query {
+  nodes {
+    debug
+    host
+    port
+    role
+    timeout
+    cleanUpCycle
+    maxSession
+    downPollingLimit
+    browserTimeout
+    unregisterIfStillDownAfter
+    remoteHost
+    registerCycle
+    register
+    proxy
+    nodeStatusCheckTimeout
+    nodePolling
+    id
+    hub
+  }
+}

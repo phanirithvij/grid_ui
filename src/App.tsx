@@ -9,9 +9,9 @@ import logo from "./images/selenium.png";
 import Home from "./screens/Home";
 import Nodes from "./screens/Nodes";
 
-
 const cache = new InMemoryCache();
 const link = new HttpLink({
+	// document.location.protocol + "//" + document.location.host + "/graphql"
 	uri: "http://localhost:5000/graphql",
 });
 
@@ -19,8 +19,6 @@ const client = new ApolloClient({
 	cache,
 	link,
 });
-
-console.log(client);
 
 function App() {
 	return (
@@ -31,9 +29,9 @@ function App() {
 					<Link to="/home">Home Page</Link>
 				</header>
 				<Switch>
+					<Route exact path="/" component={Home} />
 					<Route exact path="/home" component={Home} />
 					<Route exact path="/nodes" component={Nodes} />
-					<Route exact path="/" component={Home} />
 				</Switch>
 			</Router>
 		</ApolloProvider>

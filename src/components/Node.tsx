@@ -1,30 +1,10 @@
+import { loader } from "graphql.macro";
 import React from "react";
-import { gql } from "apollo-boost";
 
-const NODE_QUERY = gql`
-	query NodeQuery($id: String!) {
-		launch(id: $id) {
-			debug
-			host
-			port
-			role
-			timeout
-			cleanUpCycle
-			maxSession
-			downPollingLimit
-			browserTimeout
-			unregisterIfStillDownAfter
-			remoteHost
-			registerCycle
-			register
-			proxy
-			nodeStatusCheckTimeout
-			nodePolling
-			id
-			hub
-		}
-	}
-`;
+// eslint-disable-next-line
+const NODE_QUERY = loader("../graphql/node.gql");
+console.log(NODE_QUERY);
+
 
 export default function NodeComponent(props: {
 	node: {
