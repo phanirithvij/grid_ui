@@ -1,7 +1,36 @@
-import React, { useState, Fragment } from "react";
+import gql from "graphql-tag";
+import React, { useState } from "react";
+import { Query } from "react-apollo";
 import { Link } from "react-router-dom";
+import NodeComponent from "../components/Node";
 
-export default function Nodes(props) {
+// Using SpaceX api as an example
+const NODES_QUERY = gql`
+	query {
+		nodes {
+			debug
+			host
+			port
+			role
+			timeout
+			cleanUpCycle
+			maxSession
+			downPollingLimit
+			browserTimeout
+			unregisterIfStillDownAfter
+			remoteHost
+			registerCycle
+			register
+			proxy
+			nodeStatusCheckTimeout
+			nodePolling
+			id
+			hub
+		}
+	}
+`;
+
+export default function Nodes() {
 	let [nodes, setNodes] = useState([{ id: "2", xd: 32 }]);
 
 	function addNode() {
@@ -15,17 +44,20 @@ export default function Nodes(props) {
 	return (
 		<>
 			<div>
-				Nodes page In a sense
+				Nodes page <br />
 				<Link to="/home">Helo</Link>
 			</div>
-			{
-				nodes.map((node) => (
-					<Fragment key={node.id}>
-						<p>{node.id}</p>
-						<p>{node.xd}</p>
-					</Fragment>
-				))
-			}
+			<Query query={NODES_QUERY}>
+				{({ loading, error, data }) => {
+					if (loading) return <h4>Loading...</h4>;
+					if (error) console.log(error);
+					console.log(data);
+					return <></>;
+				}}
+			</Query>
+			{nodes.map((node) => (
+				<NodeComponent node={node} key={node.id} />
+			))}
 			<button onClick={addNode}>Add new</button>
 		</>
 	);
