@@ -26,7 +26,12 @@ const NODE_QUERY = gql`
 	}
 `;
 
-export default function NodeComponent(props) {
+export default function NodeComponent(props: {
+	node: {
+		id: string;
+		xd: number;
+	};
+}) {
 	const { node } = props;
 	return (
 		<div>

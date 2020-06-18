@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import React, { useState } from "react";
-import { Query } from "react-apollo";
+import { Query, QueryResult } from "react-apollo";
 import { Link } from "react-router-dom";
 import NodeComponent from "../components/Node";
 
@@ -48,10 +48,10 @@ export default function Nodes() {
 				<Link to="/home">Helo</Link>
 			</div>
 			<Query query={NODES_QUERY}>
-				{({ loading, error, data }) => {
-					if (loading) return <h4>Loading...</h4>;
-					if (error) console.log(error);
-					console.log(data);
+				{(result: QueryResult<any, Record<string, any>>) => {
+					// if (loading) return <h4>Loading...</h4>;
+					// if (error) console.log(error);
+					console.log(result);
 					return <></>;
 				}}
 			</Query>
