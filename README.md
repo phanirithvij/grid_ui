@@ -1,4 +1,11 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## TODO
+
+- [ ] Discuss with Saksham on the final graphql schema
+  - [ ] `Grid Version` should be a field in the main schema
+  - [ ] `OS` should be a field in the Node schema
+- [ ] Attributions page
+  - `Unknown [?] Icon by <a href="https://www.flaticon.com/authors/iconixar" title="iconixar">iconixar</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>`
+  - ``
 
 ## Available Scripts
 
@@ -7,7 +14,6 @@ First
 ```
 npm install
 ```
-
 
 In the project directory, you can run:
 

@@ -3,9 +3,17 @@ import { ApolloClient } from "apollo-client";
 import { HttpLink } from "apollo-link-http";
 import React from "react";
 import { ApolloProvider } from "react-apollo";
-import { BrowserRouter as Router, Link, Route, Switch } from "react-router-dom";
-import "./App.css";
-import logo from "./images/selenium.png";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+
+// materialize
+import "materialize-css/dist/css/materialize.min.css";
+import "materialize-css/dist/js/materialize.min";
+
+// css import order is important
+/* 1 */ import "./css/theme.css";
+/* 2 */ import "./css/theme-selenium.css";
+/* 3 */ import "./App.css";
+
 import Home from "./screens/Home";
 import Nodes from "./screens/Nodes";
 
@@ -24,10 +32,6 @@ function App() {
 	return (
 		<ApolloProvider client={client}>
 			<Router>
-				<header>
-					<img src={logo} alt="icon"></img>
-					<Link to="/home">Home Page</Link>
-				</header>
 				<Switch>
 					<Route exact path="/" component={Home} />
 					<Route exact path="/home" component={Home} />

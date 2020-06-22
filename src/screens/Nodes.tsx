@@ -3,40 +3,52 @@ import React, { useState } from "react";
 import { Query, QueryResult } from "react-apollo";
 import { Link } from "react-router-dom";
 import NodeComponent from "../components/Node";
+import "../css/common.css";
+import NodeType from "../models/node";
+import "./Nodes.css";
 
 const NODES_QUERY = loader("../graphql/nodes.gql");
+interface GqlDataType {
+	nodes: NodeType[];
+}
 
 export default function Nodes() {
-	let [nodes, setNodes] = useState([{ id: "2", xd: 32 }]);
-
-	function addNode() {
-		nodes = [
-			...nodes,
-			{ id: Math.round(Math.random() * 1000).toString(), xd: 32 },
-		];
-		setNodes(nodes);
-	}
+	let [nodes, setNodes] = useState<NodeType[]>([]);
 
 	return (
-		<>
-			<div>
-				Nodes page <br />
-				<Link to="/home">Home</Link>
+		<div className="container">
+			<div className="bg-green">
+				<Link to="/home">
+					<h3>
+						Nodes page
+					</h3>
+				</Link>
 			</div>
-			<Query query={NODES_QUERY}>
-				{(result: QueryResult) => {
+			<Query
+        query={NODES_QUERY}
+        // rebuilds twice because of setting nodes
+        // do not use <Query /> if that's not intended
+				onCompleted={(data: GqlDataType) => setNodes(data!.nodes)}
+			>
+				{(result: QueryResult<GqlDataType>) => {
 					let { loading, error, data } = result;
-					if (loading) return <h4>Loading...</h4>;
-					if (error) console.log(error);
-					// console.log("result");
-					console.log(data);
-					return <></>;
+					if (loading) return <h4>fetching...</h4>;
+					if (error) {
+						console.error(error);
+						// TODO show error message properly
+						return <>{error.message}</>;
+					}
+					return (
+						<>
+							{/* Map over the nodes */}
+							{/* data! implies data is not undefined */}
+							{data!.nodes.map((n) => (
+								<NodeComponent node={n} key={n.id} />
+							))}
+						</>
+					);
 				}}
 			</Query>
-			{nodes.map((node) => (
-				<NodeComponent node={node} key={node.id} />
-			))}
-			<button onClick={addNode}>Add new</button>
-		</>
+		</div>
 	);
 }

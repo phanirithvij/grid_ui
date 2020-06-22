@@ -18,5 +18,14 @@ query NodeQuery($id: String!) {
 		nodePolling
 		id
 		hub
+		capabilities {
+			browserName
+			marionette
+			maxInstances
+			platform
+			platformName
+			seleniumProtocol
+			serverConfigUUID
+		}
 	}
 }

@@ -1,0 +1,9 @@
+hr {
+    border-color: black;
+    border-width: 1px;
+    border-top: 30px transparent;
+}
+
+h3 {
+    color: whitesmoke !important;
+}
