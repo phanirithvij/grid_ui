@@ -1,4 +1,4 @@
-import { Close, MoreVert } from '@material-ui/icons';
+import { Close, MoreVert } from "@material-ui/icons";
 import { loader } from "graphql.macro";
 import React from "react";
 import { Card } from "react-materialize";
@@ -7,9 +7,6 @@ import firefoxLogo from "../images/firefox.svg";
 import unknownLogo from "../images/unknown.svg";
 import NodeType from "../models/node";
 import "./Node.css";
-
-
-
 
 // Not using this query for getting a single node
 // Because in Nodes.tsx we get all the attrs of all the existing Nodes
@@ -70,7 +67,7 @@ export default function NodeComponent(props: { node: NodeType }) {
 					<p>unregisterIfStillDownAfter: 60000</p>
 				</div>
 			}
-      revealIcon={<MoreVert />}
+			revealIcon={<MoreVert />}
 			title="DefaultRemoteProxy (version : 3.141.59)"
 		>
 			<div>
