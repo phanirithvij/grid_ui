@@ -6,16 +6,17 @@ import { ApolloProvider } from "react-apollo";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
 // materialize
-import "materialize-css/dist/css/materialize.min.css";
-import "materialize-css/dist/js/materialize.min";
+// import "materialize-css/dist/css/materialize.min.css";
+// import "materialize-css/dist/js/materialize.min";
 
 // css import order is important
-/* 1 */ import "./css/theme.css";
-/* 2 */ import "./css/theme-selenium.css";
+// /* 1 */ import "./css/theme.css";
+// /* 2 */ import "./css/theme-selenium.css";
 /* 3 */ import "./App.css";
 
 import Home from "./screens/Home";
 import Nodes from "./screens/Nodes";
+import SearchAppBar from "./components/AppBar/AppBar";
 
 const cache = new InMemoryCache();
 const link = new HttpLink({
@@ -32,6 +33,7 @@ function App() {
 	return (
 		<ApolloProvider client={client}>
 			<Router>
+        <SearchAppBar />
 				<Switch>
 					<Route exact path="/" component={Home} />
 					<Route exact path="/home" component={Home} />
