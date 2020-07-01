@@ -1,13 +1,22 @@
+import Avatar from "@material-ui/core/Avatar";
+import Card from "@material-ui/core/Card";
+import CardActions from "@material-ui/core/CardActions";
+import CardContent from "@material-ui/core/CardContent";
+import CardHeader from "@material-ui/core/CardHeader";
+import Collapse from "@material-ui/core/Collapse";
 import { red } from "@material-ui/core/colors";
+import IconButton from "@material-ui/core/IconButton";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
+import Typography from "@material-ui/core/Typography";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import MoreVertIcon from "@material-ui/icons/MoreVert";
+import clsx from "clsx";
 import { loader } from "graphql.macro";
 import React from "react";
 import chromeLogo from "../../assets/chrome.svg";
 import firefoxLogo from "../../assets/firefox.svg";
 import unknownLogo from "../../assets/unknown.svg";
 import NodeType from "../../models/node";
-import { ReactComponent as RightIcon } from "../../assets/icons/arrow.svg";
-import { Status } from "../Status";
 import "./Node.css";
 
 // Not using this query for getting a single node
@@ -123,18 +132,46 @@ export default function NodeComponent(props: {
 		</div>
 	);
 	return (
-		<tr>
-			<th scope="row">3</th>
-			<td>Larry the Bird</td>
-			{/* <td colSpan={2}>Larry the Bird</td> */}
-			<td>@twitter</td>
-			<td>@mdo</td>
-			<td>
-				<Status state="idle" />
-			</td>
-			<td>
-				<RightIcon />
-			</td>
-		</tr>
+		<>
+			<Card className={classes.root}>
+				<CardHeader
+					avatar={
+						<Avatar aria-label="node" className={classes.avatar}>
+							{index}
+						</Avatar>
+					}
+					action={
+						<IconButton aria-label="settings">
+							<MoreVertIcon />
+						</IconButton>
+					}
+					title={`${node.role}, DefaultRemoteProxy (version : 3.141.59)`}
+					subheader="TODO: last active time"
+				/>
+				<CardContent>
+					<Typography variant="body2" color="textSecondary" component="p">
+						// TODO show important info for this node
+					</Typography>
+					{logos}
+				</CardContent>
+				<CardActions disableSpacing>
+					<IconButton
+						className={clsx(classes.expand, {
+							[classes.expandOpen]: expanded,
+						})}
+						onClick={handleExpandClick}
+						aria-expanded={expanded}
+						aria-label="show more"
+					>
+						<ExpandMoreIcon />
+					</IconButton>
+				</CardActions>
+				<Collapse in={expanded} timeout="auto" unmountOnExit>
+					<CardContent>
+						<div>{details}</div>
+					</CardContent>
+				</Collapse>
+			</Card>
+		</>
 	);
 }

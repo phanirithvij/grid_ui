@@ -6,6 +6,8 @@ import "../css/common.css";
 import NodeType from "../models/node";
 import "./Nodes.css";
 import { ReactComponent as RightIcon } from "../assets/icons/arrow.svg";
+import { Status } from "../components/Status";
+import NodeComponent from "../components/Node/Node";
 
 const NODES_QUERY = loader("../graphql/nodes.gql");
 interface GqlDataType {
@@ -41,13 +43,6 @@ export default function Nodes() {
 								justify="center"
 								alignItems="center"
 							>
-								{/* Map over the nodes  */}
-								{/* {nodes.map((n, i) => (
-									<Fragment key={n.id}>
-										<NodeComponent node={n} key={n.id} index={i} />
-										<p></p>
-									</Fragment>
-								))} */}
 								<table className="table table-hover">
 									<thead className="thead-dark">
 										<tr>
@@ -60,37 +55,10 @@ export default function Nodes() {
 										</tr>
 									</thead>
 									<tbody>
-										<tr>
-											<th scope="row">1</th>
-											<td>Mark</td>
-											<td>Otto</td>
-											<td>@mdo</td>
-											<td>@mdo</td>
-											<td>
-												<RightIcon />
-											</td>
-										</tr>
-										<tr>
-											<th scope="row">2</th>
-											<td>Jacob</td>
-											<td>Thornton</td>
-											<td>@mdo</td>
-											<td>@fat</td>
-											<td>
-												<RightIcon />
-											</td>
-										</tr>
-										<tr>
-											<th scope="row">3</th>
-											<td>Larry the Bird</td>
-											{/* <td colSpan={2}>Larry the Bird</td> */}
-											<td>@twitter</td>
-											<td>@mdo</td>
-											<td>@mdo</td>
-											<td>
-												<RightIcon />
-											</td>
-										</tr>
+										{/* Map over the nodes  */}
+										{nodes.map((n, i) => (
+											<NodeComponent node={n} key={n.id} index={i} />
+										))}
 									</tbody>
 								</table>
 							</Grid>
