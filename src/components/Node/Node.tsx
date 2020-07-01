@@ -14,9 +14,9 @@ import clsx from "clsx";
 import { loader } from "graphql.macro";
 import React from "react";
 import NodeType from "../../models/node";
-import chromeLogo from "../../images/chrome.svg";
-import firefoxLogo from "../../images/firefox.svg";
-import unknownLogo from "../../images/unknown.svg";
+import chromeLogo from "../../assets/chrome.svg";
+import firefoxLogo from "../../assets/firefox.svg";
+import unknownLogo from "../../assets/unknown.svg";
 import "./Node.css";
 
 // Not using this query for getting a single node

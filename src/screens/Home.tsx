@@ -1,21 +1,25 @@
-import React from "react";
+/** @jsx jsx */
 import { Link } from "react-router-dom";
 import "../css/common.css";
-import logo from "../images/selenium.png";
-import "./Home.css";
+import logo from "../assets/selenium.png";
+import styles from "./Home.module.css";
+import { css, jsx } from "@emotion/core";
 
 export default function Home() {
 	return (
-		<>
+		<section
+			id="body"
+			css={css`
+				height: 30px;
+			`}
+		>
 			<div
-				className="container bg-green"
+				className="padding highlightable"
 			>
-				<header>
+				<header className={styles.header}>
 					<Link to="/home">
-						<h3>
-							<img src={logo} alt="icon"></img>&nbsp; Selenium Grid Hub
-							v.3.141.59
-						</h3>
+						<img src={logo} className={styles.inline} alt="icon"></img>&nbsp;
+						Selenium Grid Hub v.3.141.59
 					</Link>
 				</header>
 			</div>
@@ -49,6 +53,6 @@ export default function Home() {
 					</footer>
 				</div>
 			</div>
-		</>
+		</section>
 	);
 }

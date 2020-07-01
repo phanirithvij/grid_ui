@@ -17,46 +17,43 @@ export default function Nodes() {
 	let [nodes, setNodes] = useState<NodeType[]>([]);
 
 	return (
-		<div className="container">
-			<div className="bg-green">
-				<Link to="/home">
-					<h3>Nodes page</h3>
-				</Link>
+		<section id="body">
+			<div className="padding highlightable">
+				<Query
+					query={NODES_QUERY}
+					// rebuilds twice because of setting nodes
+					// do not use <Query /> if that's not intended
+					onCompleted={(data: GqlDataType) => setNodes(data!.nodes)}
+				>
+					{(result: QueryResult<GqlDataType>) => {
+						let { loading, error, data } = result;
+						if (loading) return <h4>fetching...</h4>;
+						if (error) {
+							console.error(error);
+							// TODO show error message properly
+							return <>{error.message}</>;
+						}
+						return (
+							<Grid
+								container
+								direction="row"
+								justify="center"
+								alignItems="center"
+							>
+								{/* Map over the nodes */}
+								{/* data! implies data is not undefined */}
+								{data!.nodes.map((n, i) => (
+									<Fragment key={n.id}>
+										<NodeComponent node={n} key={n.id} index={i} />
+										{/* <RecipeReviewCard /> */}
+										<p></p>
+									</Fragment>
+								))}
+							</Grid>
+						);
+					}}
+				</Query>
 			</div>
-			<Query
-				query={NODES_QUERY}
-				// rebuilds twice because of setting nodes
-				// do not use <Query /> if that's not intended
-				onCompleted={(data: GqlDataType) => setNodes(data!.nodes)}
-			>
-				{(result: QueryResult<GqlDataType>) => {
-					let { loading, error, data } = result;
-					if (loading) return <h4>fetching...</h4>;
-					if (error) {
-						console.error(error);
-						// TODO show error message properly
-						return <>{error.message}</>;
-					}
-					return (
-						<Grid
-							container
-							direction="row"
-							justify="center"
-							alignItems="center"
-						>
-							{/* Map over the nodes */}
-							{/* data! implies data is not undefined */}
-							{data!.nodes.map((n, i) => (
-								<Fragment key={n.id}>
-									<NodeComponent node={n} key={n.id} index={i} />
-									{/* <RecipeReviewCard /> */}
-									<p></p>
-								</Fragment>
-							))}
-						</Grid>
-					);
-				}}
-			</Query>
-		</div>
+		</section>
 	);
 }
