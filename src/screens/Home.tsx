@@ -1,21 +1,15 @@
-/** @jsx jsx */
+/**\ @\jsx jsx */
+// import { css, jsx } from "@emotion/core";
 import { Link } from "react-router-dom";
-import "../css/common.css";
 import logo from "../assets/selenium.png";
+import "../css/common.css";
 import styles from "./Home.module.css";
-import { css, jsx } from "@emotion/core";
+import React from "react";
 
 export default function Home() {
 	return (
-		<section
-			id="body"
-			css={css`
-				height: 30px;
-			`}
-		>
-			<div
-				className="padding highlightable"
-			>
+		<section id="body">
+			<div className="padding highlightable">
 				<header className={styles.header}>
 					<Link to="/home">
 						<img src={logo} className={styles.inline} alt="icon"></img>&nbsp;

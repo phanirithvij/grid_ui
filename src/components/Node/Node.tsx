@@ -50,7 +50,10 @@ const useStyles = makeStyles((theme: Theme) =>
 	})
 );
 
-export default function NodeComponent(props: { node: NodeType, index: number }) {
+export default function NodeComponent(props: {
+	node: NodeType;
+	index: number;
+}) {
 	const { node, index } = props;
 	// console.log(node);
 
@@ -111,8 +114,7 @@ export default function NodeComponent(props: { node: NodeType, index: number }) 
 		<div>
 			id : {node.id}, OS : {/* node.platform */ "LINUX"}
 			{node.capabilities?.map((c) => (
-				<p key={c.serverConfigUUID}>
-					v:{" "}
+				<div key={c.serverConfigUUID}>
 					{[...Array(c.maxInstances)].map((_, i) => (
 						<img
 							key={i}
@@ -122,9 +124,10 @@ export default function NodeComponent(props: { node: NodeType, index: number }) 
 							width="16"
 							height="16"
 							title={JSON.stringify(c)}
+							style={{ float: "left" }}
 						/>
 					))}{" "}
-				</p>
+				</div>
 			))}
 		</div>
 	);
@@ -145,10 +148,11 @@ export default function NodeComponent(props: { node: NodeType, index: number }) 
 					title={`${node.role}, DefaultRemoteProxy (version : 3.141.59)`}
 					subheader="TODO: last active time"
 				/>
-			<CardContent>
+				<CardContent>
 					<Typography variant="body2" color="textSecondary" component="p">
-            // TODO show important info for this node
+						// TODO show important info for this node
 					</Typography>
+					{logos}
 				</CardContent>
 				<CardActions disableSpacing>
 					<IconButton
@@ -164,7 +168,7 @@ export default function NodeComponent(props: { node: NodeType, index: number }) 
 				</CardActions>
 				<Collapse in={expanded} timeout="auto" unmountOnExit>
 					<CardContent>
-            <div>{details}</div>
+						<div>{details}</div>
 					</CardContent>
 				</Collapse>
 			</Card>
