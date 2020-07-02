@@ -1,6 +1,6 @@
 /** @jsx jsx*/
 import { loader } from "graphql.macro";
-import React, { useState } from "react";
+import React, { useState, useReducer, useEffect } from "react";
 import { Query, QueryResult } from "react-apollo";
 import { ReactComponent as SortIcon2 } from "../assets/icons/sorticon-plain.svg";
 import NodeComponent from "../components/Node/Node";
@@ -12,6 +12,8 @@ import { Provider } from "react-redux";
 import store from "../redux/store";
 import Ring from "../components/Ring/Ring";
 import { css, jsx } from "@emotion/core";
+import RingSystem from "../components/RingSystem/RingSystem";
+import StateType from "../models/rings";
 
 /* TODO
 	1. add a pagination variable to the query
@@ -24,16 +26,94 @@ interface GqlDataType {
 	nodes: NodeType[];
 }
 
+const initialState: StateType = {
+	count: 0,
+	progresses: {},
+};
+
+function randomColor() {
+	var letters = "0123456789ABCDEF";
+	var color = "#";
+	for (var i = 0; i < 6; i++) {
+		color += letters[Math.floor(Math.random() * 16)];
+	}
+	return color;
+}
+
+function reducer(state: StateType, action: { type: string; args?: any }) {
+	switch (action.type) {
+		// These will not be in the final code
+		// these are for testing
+		case "increment":
+			const newState = {
+				count: state.count + 1,
+				progresses: { ...state.progresses },
+			};
+			newState.progresses[state.count] = {
+				progress: Math.round(Math.random() * 9 + 1),
+				color: randomColor(),
+			};
+			console.log(newState);
+			return newState;
+		case "decrement":
+			// remove the previous progresses
+			delete state.progresses[state.count - 1];
+			console.log(state.progresses);
+
+			if (state.count < 1) {
+				state.count = 1;
+			}
+			const ret = { count: state.count - 1, progresses: state.progresses };
+			return ret;
+		case "update":
+			console.log(state, action.args);
+			const updatedState = { ...state };
+			if (updatedState.count > 0) {
+				updatedState.progresses[action.args as number] = {
+					...updatedState.progresses[action.args as number],
+					progress: Math.round(Math.random() * 99 + 1),
+				};
+			}
+			console.log(updatedState);
+			return updatedState;
+		default:
+			throw new Error();
+	}
+}
+
 export default function Nodes() {
 	let [activeNodes, setActiveNodes] = useState<NodeType[]>([]);
-	let [incr, setIncr] = useState(0);
+	let [currentIndex, setcurrentIndex] = useState(0);
 
 	let sortbutton = SortButton({ initialState: SelectState.up });
 
-	const unSelect = () => {
-		console.log(sortbutton);
-		setIncr(incr + 1);
+	const increment = () => {
+		dispatch({ type: "increment" });
 	};
+	const decrement = () => {
+		dispatch({ type: "decrement" });
+	};
+	const update = () => {
+		dispatch({ type: "update", args: currentIndex });
+	};
+	const updateIndex = (ev: React.ChangeEvent<HTMLSelectElement>) => {
+		const selected = parseInt(ev.target.value);
+		console.log("selected", selected);
+		setcurrentIndex(selected);
+	};
+
+	const [state, dispatch] = useReducer(reducer, initialState);
+
+	// componentDidMount
+	useEffect(() => {
+		dispatch({ type: "increment" });
+		dispatch({ type: "increment" });
+		dispatch({ type: "increment" });
+		dispatch({ type: "increment" });
+		dispatch({ type: "increment" });
+		dispatch({ type: "increment" });
+		dispatch({ type: "increment" });
+	}, []);
 
 	return (
 		<Provider store={store}>
@@ -56,28 +136,17 @@ export default function Nodes() {
 							}
 							return (
 								<React.Fragment>
-									<button onClick={unSelect}>unSelect</button>
-									<div
-										css={css`
-											position: relative;
-											height: ${112 * 2}px;
-										`}
-									>
-										<Ring
-											color="red"
-											offset={incr}
-											radius={112}
-											progress={100}
-											stroke={12}
-										/>
-										<Ring
-											color="pink"
-											offset={incr}
-											radius={112}
-											progress={50}
-											stroke={12}
-										/>
-									</div>
+									<button onClick={increment}>increment</button>
+									<button onClick={decrement}>decrement</button>
+									<button onClick={update}>update</button>
+									<select onChange={updateIndex}>
+										{Object.entries(state.progresses).map(([key, value]) => (
+											<option key={key} value={key}>
+												value: {JSON.stringify(value)}
+											</option>
+										))}
+									</select>
+									<RingSystem state={state} />
 									<table className="table table-hover">
 										<thead>
 											<tr>
