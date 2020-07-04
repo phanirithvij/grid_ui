@@ -3,86 +3,72 @@
 import { css, jsx as _jsx } from "@emotion/core";
 import Tippy from "@tippyjs/react";
 import React, { useState } from "react";
-import "tippy.js/dist/tippy.css"; // optional for styling
+import { followCursor } from "tippy.js";
+import "tippy.js/dist/tippy.css"; // required for styling tippy
 import { ReactComponent as CircleIcon } from "../../assets/icons/circle.svg";
 import StateType from "../../models/rings";
-import Ring, { ToolTip } from "../Ring/Ring";
-import "./dot.css";
+import Ring from "../Ring/Ring";
 
-export default function RingSystem({
-	state: { count, progresses },
-}: {
-	state: StateType;
-}) {
-	const radius = 100;
-	const stroke = 10;
+const RingSystem = ({ state: { count, progresses } }: { state: StateType }) => {
+	const radius = 112;
+	const stroke = 12;
 	let normalizedRadius = radius - stroke;
 	let prevProgress = 0;
 
-	let [currentTooltipChild, setcurrentTooltipChild] = useState(
-		<React.Fragment></React.Fragment>
-	);
-
-	const parentCB = (child: JSX.Element) => {
-		setcurrentTooltipChild(child);
+	const [visible, setVisible] = useState(false);
+	const showTippy = () => {
+		// if not visible show to prevent multiple renders
+		if (!visible) setVisible(true);
+	};
+	const hideTippy = () => {
+		// if visible hide to prevent multiple renders
+		if (visible) setVisible(false);
 	};
 
-	function showTooltip(
+	let [currentTooltipContent, setcurrentTooltipContent] = useState("loading");
+
+	const parentCB = (child: string) => {
+		if (currentTooltipContent != child) setcurrentTooltipContent(child);
+	};
+
+	const handleTippy = (
 		evt: React.MouseEvent<HTMLDivElement, MouseEvent>,
-		child: JSX.Element
-	) {
-		let tooltip = document.getElementById("tooltip") as HTMLDivElement;
-		tooltip.style.left = evt.nativeEvent.offsetX - 7 + "px";
-		tooltip.style.top = evt.nativeEvent.offsetY - 40 + "px";
+		child: string
+	) => {
 		let [x2, y2] = [evt.nativeEvent.offsetX, evt.nativeEvent.offsetY];
 		let distsquared = distSq(radius, radius, x2, y2);
-		tooltip.style.display = "none";
-		// console.log(
-		// 	distsquared,
-		// 	(normalizedRadius - stroke) ** 2,
-		// 	radius ** 2,
-		// 	distsquared < radius ** 2,
-		// 	distsquared > (normalizedRadius - stroke) ** 2
-		// );
+
+		// covers more area to maximize visibile time
 		if (
 			distsquared < radius ** 2 &&
 			distsquared > (normalizedRadius - stroke) ** 2
-		) {
-			tooltip.style.display = "block";
-			showPoint(evt);
-		}
+		)
+			showTippy();
+		else hideTippy();
+
 		parentCB(child);
-	}
+	};
 
-	function showPoint(evt: React.MouseEvent<HTMLDivElement, MouseEvent>) {
-		// Add a dot to follow the cursor
-		let dot = document.createElement("div");
-		dot.className = "dot";
-		dot.style.left = evt.pageX + "px";
-		dot.style.top = evt.pageY + "px";
-		document.body.appendChild(dot);
-	}
-
-	function distSq(x1: number, y1: number, x2: number, y2: number) {
+	/* Square of dist between two coords */
+	const distSq = (x1: number, y1: number, x2: number, y2: number) => {
 		return Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2);
-	}
-
-	// eslint-disable-next-line
-	function hideTooltip() {
-		var tooltip = document.getElementById("tooltip") as HTMLDivElement;
-		tooltip.style.display = "none";
-	}
+	};
 
 	let totalProgress = 0;
 	Object.values(progresses).forEach((x) => {
 		totalProgress += x.progress;
 	});
+
+	// can be removed as progress will not be > 100
+	// because we calculate progress from (n / total nodes) which will all add up
 	if (totalProgress > 100) {
+		// checks if progress > 100 then makes it 100
 		Object.keys(progresses).forEach((x) => {
 			const idx = parseInt(x);
 			progresses[idx].progress /= totalProgress;
-			progresses[idx].progress = Math.round(progresses[idx].progress * 100);
+			progresses[idx].progress = Math.floor(progresses[idx].progress * 100);
 		});
+		totalProgress = 100;
 	}
 
 	return (
@@ -100,9 +86,19 @@ export default function RingSystem({
 					width: ${radius * 2}px;
 					min-width: ${radius * 2}px;
 				`}
-				onMouseMove={(ev) => showTooltip(ev, <div>{"Pooooo"}</div>)}
+				onMouseMove={(ev) => handleTippy(ev, "Pooooo")}
+				// onMouseOut={hideTippy}
+				onMouseLeave={hideTippy}
 			>
-				<ToolTip>{currentTooltipChild}</ToolTip>
+				<Tippy
+					visible={visible}
+					followCursor={true}
+					plugins={[followCursor]}
+					content={currentTooltipContent}
+					duration={100}
+				>
+					<div></div>
+				</Tippy>
 				{/* https://stackoverflow.com/a/23714832/8608146 */}
 				<div
 					css={css`
@@ -133,7 +129,8 @@ export default function RingSystem({
 				{(() => {
 					if (prevProgress > 100) prevProgress = 100;
 				})()}
-				{/* Residual ring i.e. 100 - percent */}
+				{/* Residual ring i.e. left out 100 - percent */}
+				{/* Or we can show a full circle as the background i.e. at the very beginning */}
 				<Ring
 					color={"#707070"}
 					offset={prevProgress}
@@ -185,53 +182,47 @@ export default function RingSystem({
 			</div>
 		</div>
 	);
-}
+};
 
-export function ColorInfo(props: {
-	color: string;
-	text: string;
-	id: string;
-	progress: number;
-}) {
-	const { color, text, id, progress } = props;
-	// didChangeDependencies
-	// useEffect(() => {
-	// 	// register tippy tooltips only when progress changes
-	// 	tippy(`#${id}`, {
-	// 		content: `${progress}%`,
-	// 		placement: "left",
-	// 	});
-	// }, [progress]);
+export default RingSystem;
+export { ColorInfo };
 
-	return (
-		<div
-			css={css`
-				height: 20px;
-				position: relative;
-			`}
-		>
-			<Tippy content={`${progress}%`} placement="left">
-				<CircleIcon
-					id={id}
-					css={css`
-						fill: ${color};
-						float: left;
-						height: 100%;
-						position: absolute;
-					`}
-				/>
-			</Tippy>
+// TODO https://reactjs.org/docs/react-api.html#reactmemo
+// Look at isequal
+const ColorInfo = React.memo(
+	(props: { color: string; text: string; id: string; progress: number }) => {
+		const { color, text, id, progress } = props;
+
+		return (
 			<div
 				css={css`
-					left: 30px;
-					position: absolute;
-					height: 100%;
-					top: 15%;
-					transform: translate(-10%, -30%);
+					height: 20px;
+					position: relative;
 				`}
 			>
-				{text}
+				<Tippy content={`${progress}%`} placement="left">
+					<CircleIcon
+						id={id}
+						css={css`
+							fill: ${color};
+							float: left;
+							height: 100%;
+							position: absolute;
+						`}
+					/>
+				</Tippy>
+				<div
+					css={css`
+						left: 30px;
+						position: absolute;
+						height: 100%;
+						top: 15%;
+						transform: translate(-10%, -30%);
+					`}
+				>
+					{text}
+				</div>
 			</div>
-		</div>
-	);
-}
+		);
+	}
+);

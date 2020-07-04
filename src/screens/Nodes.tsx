@@ -1,3 +1,4 @@
+/** @jsx _jsx*/
 import { loader } from "graphql.macro";
 import React, { useEffect, useReducer, useState } from "react";
 import { Query, QueryResult } from "react-apollo";
@@ -11,7 +12,7 @@ import NodeType from "../models/node";
 import StateType from "../models/rings";
 import store from "../redux/store";
 import "./Nodes.module.css";
-
+import { css, jsx as _jsx } from "@emotion/core";
 
 /* TODO
 	1. add a pagination variable to the query
@@ -145,7 +146,15 @@ export default function Nodes() {
 									<table className="table table-hover">
 										<thead>
 											<tr>
-												<th scope="col">#</th>
+												<th
+													scope="col"
+													onClick={increment}
+													css={css`
+														cursor: pointer;
+													`}
+												>
+													#
+												</th>
 												<th scope="col">Name {sortbutton}</th>
 												<th scope="col">
 													ID <SortIcon2 />
