@@ -27,10 +27,10 @@ export default function SortButton({
 			: setState(SelectState.up);
 	};
 
-	const unSelect = () => {
+/* 	const unSelect = () => {
 		setState(SelectState.inactive);
 	};
-
+ */
   return (
 		<SortIcon
 			onClick={onClickicon}

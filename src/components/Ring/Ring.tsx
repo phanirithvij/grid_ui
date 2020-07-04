@@ -1,7 +1,9 @@
 /** @jsx _jsx */
 
 import { css, jsx as _jsx } from "@emotion/core";
-import React, { useState } from "react";
+import Tippy from "@tippyjs/react";
+import { followCursor } from "tippy.js";
+import "tippy.js/dist/tippy.css"; // optional for styling
 import { ReactComponent as TooltipBottomIcon } from "../../assets/icons/tooltip-bott.svg";
 
 export function ToolTip({ children }: { children: JSX.Element }) {
@@ -27,20 +29,36 @@ export function ToolTip({ children }: { children: JSX.Element }) {
 export default function Ring(props: {
 	radius: number;
 	stroke: number;
+	id: string;
 	color: string;
 	progress: number;
 	offset: number;
 	parentCB: Function;
 }) {
-	const { radius, stroke, progress, offset, color, parentCB } = props;
+	const { radius, stroke, progress, offset, color, id /* parentCB */ } = props;
+
+	// useEffect(() => {
+	// 	// register tippy tooltips only when progress changes
+	// 	tippy(`#${id}`, {
+	// 		content: `${progress}%`,
+	// 		followCursor: true,
+	// 		plugins: [followCursor],
+	// 	});
+	// }, [progress]);
+
 	let normalizedRadius = radius - stroke;
 	let circumference = normalizedRadius * 2 * Math.PI;
 	const strokeDashoffset = circumference - (progress / 100) * circumference;
 	const offsetAngle = (360 * offset) / 100;
 
 	return (
-		<React.Fragment>
+		<Tippy
+			content={`${progress}%`}
+			followCursor={true}
+			plugins={[followCursor]}
+		>
 			<svg
+				id={id}
 				height={radius * 2}
 				width={radius * 2}
 				css={css`
@@ -67,6 +85,6 @@ export default function Ring(props: {
 					// onMouseOut={hideTooltip}
 				/>
 			</svg>
-		</React.Fragment>
+		</Tippy>
 	);
 }
