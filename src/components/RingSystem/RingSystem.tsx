@@ -2,7 +2,7 @@
 
 import { css, jsx as _jsx } from "@emotion/core";
 import Tippy from "@tippyjs/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { followCursor } from "tippy.js";
 import "tippy.js/dist/tippy.css"; // required for styling tippy
 import { ReactComponent as CircleIcon } from "../../assets/icons/circle.svg";
@@ -30,6 +30,16 @@ const RingSystem = ({ state: { count, progresses } }: { state: StateType }) => {
 		if (istippyVisible) setVisible(false);
 	};
 
+	let [currentTooltipContent, setcurrentTooltipContent] = useState("loading");
+	let totalProgress = 0;
+
+	const parentCB = useCallback(
+		(child: string) => {
+			if (currentTooltipContent !== child) setcurrentTooltipContent(child);
+		},
+		[currentTooltipContent]
+	);
+
 	useEffect(() => {
 		if (index === -1) return;
 		console.log(index, Object.keys(progresses).length);
@@ -38,15 +48,8 @@ const RingSystem = ({ state: { count, progresses } }: { state: StateType }) => {
 			return;
 		}
 		parentCB(`${progresses[index].progress}% ${LABELS[index]}`);
-	}, [index]);
+	}, [index, parentCB, progresses, totalProgress]);
 
-	let [currentTooltipContent, setcurrentTooltipContent] = useState("loading");
-
-	const parentCB = (child: string) => {
-		if (currentTooltipContent != child) setcurrentTooltipContent(child);
-	};
-
-	let totalProgress = 0;
 	Object.values(progresses).forEach((x) => {
 		totalProgress += x.progress;
 		offsets.push(totalProgress);

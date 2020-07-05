@@ -35,7 +35,6 @@ export default function SortButton({
 		<SortIcon
 			onClick={onClickicon}
 			css={css`
-				cursor: pointer;
 				.arrow-1 {
 					fill: none;
 					stroke: ${state === SelectState.up ? highlitedColor : normalColor};

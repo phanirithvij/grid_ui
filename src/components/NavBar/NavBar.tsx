@@ -47,11 +47,73 @@ export default function NavBar() {
 				</div>
 				<div className="highlightable ps-container ps-theme-default ps-active-y">
 					<ul className="topics">
-						<li
-							data-nav-id="/console"
-							title="Getting started"
-							className="dd-item"
-						></li>
+						<li data-nav-id="/console" title="Console" className="dd-item">
+							<Link to="/console">Console</Link>
+						</li>
+						<li data-nav-id="/hub/" title="Hub" className="dd-item parent">
+							<Link to="/hub">
+								Hub
+								<i className="fas fa-check read-icon"></i>
+							</Link>
+
+							<ul>
+								<li
+									data-nav-id="/grid/purposes_and_main_functionalities/"
+									title="Purposes and main functionalities"
+									className="dd-item "
+								>
+									<a href="https://www.selenium.dev/documentation/en/grid/purposes_and_main_functionalities/">
+										Purposes and functionalities
+										<i className="fas fa-check read-icon"></i>
+									</a>
+								</li>
+
+								<li
+									data-nav-id="/grid/when_to_use_grid/"
+									title="When to use Grid"
+									className="dd-item "
+								>
+									<a href="https://www.selenium.dev/documentation/en/grid/when_to_use_grid/">
+										When to use Grid
+										<i className="fas fa-check read-icon"></i>
+									</a>
+								</li>
+
+								<li
+									data-nav-id="/grid/grid_4/"
+									title="Grid 4"
+									className="dd-item"
+								>
+									<a href="https://www.selenium.dev/documentation/en/grid/grid_4/">
+										Grid 4<i className="fas fa-check read-icon"></i>
+									</a>
+
+									<ul>
+										<li
+											data-nav-id="/grid/grid_4/components_of_a_grid/"
+											title="Components"
+											className="dd-item "
+										>
+											<a href="https://www.selenium.dev/documentation/en/grid/grid_4/components_of_a_grid/">
+												Components
+												<i className="fas fa-check read-icon"></i>
+											</a>
+										</li>
+
+										<li
+											data-nav-id="/grid/grid_4/setting_up_your_own_grid/"
+											title="Setting up your own"
+											className="dd-item "
+										>
+											<a href="https://www.selenium.dev/documentation/en/grid/grid_4/setting_up_your_own_grid/">
+												Setting up your own
+												<i className="fas fa-check read-icon"></i>
+											</a>
+										</li>
+									</ul>
+								</li>
+							</ul>
+						</li>{" "}
 					</ul>
 				</div>
 			</nav>

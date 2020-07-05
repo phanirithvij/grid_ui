@@ -13,7 +13,7 @@ import "../css/common.css";
 import NodeType from "../models/node";
 import StateType from "../models/rings";
 import store from "../redux/store";
-import "./Nodes.module.css";
+import "./Nodes.css";
 
 /* TODO
 	1. add a pagination variable to the query
@@ -122,7 +122,15 @@ export default function Nodes() {
 												>
 													#
 												</th>
-												<th scope="col">Name {sortbutton}</th>
+												<th
+													scope="col"
+													// onClick={}
+													css={css`
+														cursor: pointer;
+													`}
+												>
+													Name {sortbutton}
+												</th>
 												<th scope="col">
 													ID <SortIcon2 />
 												</th>
