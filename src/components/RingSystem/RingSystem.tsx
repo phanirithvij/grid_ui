@@ -7,7 +7,7 @@ import { followCursor } from "tippy.js";
 import "tippy.js/dist/tippy.css"; // required for styling tippy
 import { ReactComponent as CircleIcon } from "../../assets/icons/circle.svg";
 import StateType from "../../models/rings";
-import Ring from "../Ring/Ring";
+import Ring from "./Ring/Ring";
 import { LABELS } from "../Status";
 
 const RingSystem = ({ state: { count, progresses } }: { state: StateType }) => {
