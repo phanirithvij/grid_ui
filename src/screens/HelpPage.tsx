@@ -3,10 +3,10 @@
 import { Link } from "react-router-dom";
 import logo from "../assets/selenium.png";
 import "../css/common.css";
-import styles from "./Home.module.css";
+import styles from "./Help.module.css";
 import React from "react";
 
-export default function Home() {
+export default function HelpPage() {
 	return (
 		<section id="body">
 			<div className="padding highlightable">
@@ -29,7 +29,7 @@ export default function Home() {
 				</p>
 				<p>
 					Or perhaps you are looking for the Selenium Grid Hub{" "}
-					<Link to="/nodes">console</Link>.
+					<Link to="/console">console</Link>.
 				</p>
 				<p>Happy Testing!</p>
 				<hr />

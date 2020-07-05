@@ -45,6 +45,15 @@ export default function NavBar() {
 						</span>
 					</div>
 				</div>
+				<div className="highlightable ps-container ps-theme-default ps-active-y">
+					<ul className="topics">
+						<li
+							data-nav-id="/console"
+							title="Getting started"
+							className="dd-item"
+						></li>
+					</ul>
+				</div>
 			</nav>
 		</React.Fragment>
 	);

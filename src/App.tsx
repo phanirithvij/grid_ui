@@ -14,7 +14,7 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 /* 2 */ import "./css/theme-selenium.css";
 /* 3 */ import "./App.css";
 
-import Home from "./screens/Home";
+import HelpPage from "./screens/HelpPage";
 import Nodes from "./screens/Nodes";
 // import SearchAppBar from "./components/AppBar/AppBar";
 import NavBar from "./components/NavBar/NavBar";
@@ -37,9 +37,10 @@ function App() {
 				{/* <SearchAppBar /> */}
 				<NavBar />
 				<Switch>
-					<Route exact path="/" component={Home} />
-					<Route exact path="/home" component={Home} />
-					<Route exact path="/nodes" component={Nodes} />
+					<Route exact path="/" component={HelpPage} />
+					<Route exact path="/home" component={HelpPage} />
+					<Route exact path="/console" component={Nodes} />
+					<Route component={HelpPage} />
 				</Switch>
 			</Router>
 		</ApolloProvider>
