@@ -6,30 +6,34 @@ import React, { useCallback, useEffect, useState } from "react";
 import { followCursor } from "tippy.js";
 import "tippy.js/dist/tippy.css"; // required for styling tippy
 import { ReactComponent as CircleIcon } from "../../assets/icons/circle.svg";
-import StateType from "../../models/rings";
+import RingDetails from "../../models/rings";
 import { LABELS } from "../Status";
 import Ring from "./Ring/Ring";
 
 interface RingSystemProps {
-	state: StateType;
+	/** State of the Rings */
+	details: RingDetails;
+	/**  `showLabels` default: false*/
+	showLabels?: boolean;
+	/**  `textFormat` The center text format, default = `:freePercent:% free`*/
 	textFormat?: string;
+	/** `radius` Radius in pixels*/
 	radius?: number;
+	/** `stroke` Stroke width in pixels*/
 	stroke?: number;
 }
 
 /**
  *	A set of rings
  *
- *	@prop `radius` Radius in pixels
- *	@prop `stroke` Stroke width in pixels
- *  @prop `textFormat` The center text format, default = `:freePercent:% free`
- *
+ *  Use intellisense for how to use the props
  */
 const RingSystem = React.memo((props: RingSystemProps) => {
 	let {
-		state: { count, progresses },
+		details: { count, progresses },
 		radius = 112,
 		stroke = 10,
+		showLabels = true,
 		textFormat = ":freePercent:% free",
 	} = props;
 	let normalizedRadius = radius - stroke;
@@ -219,24 +223,27 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 					{(() => {
 						if (count > 7) count = 7;
 					})()}
-					{[...Array(count)].map((_, i) => {
-						const ret = (
-							<ColorInfo
-								key={i}
-								id={`info-icon-${i}`}
-								color={progresses[i].color}
-								progress={progresses[i].progress}
-								text={LABELS[i]}
-							/>
-						);
-						return ret;
-					})}
-					<ColorInfo
-						id={`info-icon-noman`}
-						color={"#707070"}
-						progress={100 - totalProgress}
-						text={"unknown"}
-					/>
+					{showLabels &&
+						[...Array(count)].map((_, i) => {
+							const ret = (
+								<ColorInfo
+									key={i}
+									id={`info-icon-${i}`}
+									color={progresses[i].color}
+									progress={progresses[i].progress}
+									text={LABELS[i]}
+								/>
+							);
+							return ret;
+						})}
+					{showLabels && (
+						<ColorInfo
+							id={`info-icon-noman`}
+							color={"#707070"}
+							progress={100 - totalProgress}
+							text={"unknown"}
+						/>
+					)}
 				</div>
 			</div>
 		</div>

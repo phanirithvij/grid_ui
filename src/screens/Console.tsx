@@ -9,14 +9,14 @@ import { ReactComponent as SortIcon2 } from "../assets/icons/sorticon-plain.svg"
 import NodeComponent from "../components/Node/Node";
 import RingSystem from "../components/RingSystem/RingSystem";
 import SortButton, { SelectState } from "../components/SortButton";
-import { colors, StatusType } from "../components/Status";
+import { colors, StatusType, LABELS } from "../components/Status";
 import "../css/common.css";
 import NodeType from "../models/node";
-import StateType from "../models/rings";
+import RingDetails from "../models/rings";
 import store from "../redux/store";
 import "./Console.css";
 import "rc-pagination/assets/index.css";
-import localeInfo from 'rc-pagination/lib/locale/en_US';
+import localeInfo from "rc-pagination/lib/locale/en_US";
 
 /* TODO
 	1. add a pagination variable to the query
@@ -29,12 +29,12 @@ interface GqlDataType {
 	nodes: NodeType[];
 }
 
-const initialState: StateType = {
+const initialDetails: RingDetails = {
 	count: 0,
 	progresses: {},
 };
 
-function reducer(state: StateType, action: { type: string; args?: any }) {
+function reducer(state: RingDetails, action: { type: string; args?: any }) {
 	switch (action.type) {
 		case "addRing":
 			const newState = {
@@ -87,14 +87,11 @@ export default function Console() {
 	// 	setcurrentIndex(selected);
 	// };
 
-	const [state, dispatch] = useReducer(reducer, initialState);
+	const [details, dispatch] = useReducer(reducer, initialDetails);
 
 	// Initialize the 4 rings
 	useEffect(() => {
-		addRing();
-		addRing();
-		addRing();
-		addRing();
+		LABELS.forEach((_) => addRing());
 	}, [addRing]);
 
 	const paginationItemRenderer = (
@@ -106,8 +103,8 @@ export default function Console() {
 			return <button className="btn">Prev</button>;
 		} else if (type === "next") {
 			return <button className="btn">Next</button>;
-		} else if (type === "jump-next"){
-			return <i></i>
+		} else if (type === "jump-next" || type === "jump-prev") {
+			return <i></i>;
 		}
 		console.log(type);
 		return element;
@@ -134,12 +131,13 @@ export default function Console() {
 							}
 							return (
 								<React.Fragment>
-									<RingSystem state={state} />
+									<RingSystem details={details} />
 									<table className="table table-hover">
 										<thead>
 											<tr>
 												<th
 													scope="col"
+													// TODO make this call a reset sortfilter function
 													onClick={addRing}
 													css={css`
 														cursor: pointer;
@@ -164,7 +162,13 @@ export default function Console() {
 												<th scope="col"></th>
 											</tr>
 										</thead>
-										<tbody>
+										<tbody
+											css={css`
+												tr:hover td {
+													background: rgba(83, 83, 83, 0.3);
+												}
+											`}
+										>
 											{/* Map over the nodes */}
 											{activeNodes.map((n, i) => (
 												<NodeComponent node={n} key={n.id} index={i} />
@@ -181,7 +185,6 @@ export default function Console() {
 										itemRender={paginationItemRenderer}
 										onChange={onPageChange}
 										current={currentPage}
-										showTitle={false}
 										total={100}
 										showQuickJumper={true}
 										locale={localeInfo}

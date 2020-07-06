@@ -9,7 +9,7 @@ import RingSystem from "../components/RingSystem/RingSystem";
 import SortButton, { SelectState } from "../components/SortButton";
 import "../css/common.css";
 import NodeType from "../models/node";
-import StateType from "../models/rings";
+import RingDetails from "../models/rings";
 import store from "../redux/store";
 import "./Nodes.module.css";
 import { css, jsx as _jsx } from "@emotion/core";
@@ -25,7 +25,7 @@ interface GqlDataType {
 	nodes: NodeType[];
 }
 
-const initialState: StateType = {
+const initialState: RingDetails = {
 	count: 0,
 	progresses: {},
 };
@@ -39,7 +39,7 @@ function randomColor() {
 	return color;
 }
 
-function reducer(state: StateType, action: { type: string; args?: any }) {
+function reducer(state: RingDetails, action: { type: string; args?: any }) {
 	switch (action.type) {
 		// These will not be in the final code
 		// these are for testing
@@ -143,7 +143,7 @@ export default function Nodes() {
 											</option>
 										))}
 									</select>
-									<RingSystem state={state} />
+									<RingSystem details={state} />
 									<table className="table table-hover">
 										<thead>
 											<tr>

@@ -1,6 +1,6 @@
-interface StateType {
+interface RingDetails {
 	count: number;
 	progresses: { [key: number]: { color: string; progress: number } };
 }
 
-export default StateType;
+export default RingDetails;
