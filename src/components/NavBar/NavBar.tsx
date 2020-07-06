@@ -2,22 +2,45 @@
 /** @jsx jsx */
 
 import { jsx } from "@emotion/core";
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ReactComponent as SearchIcon } from "../../assets/icons/search.svg";
 import { ReactComponent as TimesIcon } from "../../assets/icons/times.svg";
-import selenium from "../../assets/selenium.svg";
+import seleniumIcon from "../../assets/selenium.svg";
 import "../../css/icons.css";
 import styles from "./NavBar.module.css";
+import searchHighlight from "../../core/Search";
 
+/**
+ * 	NavBar component, includes search bar and search functions
+ *  Look at `core/Search.ts` for the highlight function
+ */
 export default function NavBar() {
+	let [prevSearch] = useState<any>();
+
+	const searchTerminDOM = (term: string) => {
+		if (prevSearch) {
+			prevSearch.revert();
+		}
+		if (term && term !== "") {
+			prevSearch = searchHighlight(term);
+		}
+	};
+
+	const clearSearch = () => {
+		const searchBar = document.getElementById("search-by") as HTMLInputElement;
+		searchBar.value = "";
+		// revert prev search as well
+		searchTerminDOM("");
+	};
+
 	return (
 		<React.Fragment>
 			<nav id="sidebar">
 				<div id="header-wrapper">
 					<div id="header">
 						<Link id="logo" to="/home">
-							<img src={selenium} alt="logo" className={styles.iconDetails} />
+							<img src={seleniumIcon} alt="logo" className={styles.iconDetails} />
 							<div
 								style={{
 									marginLeft: "60px",
@@ -39,9 +62,10 @@ export default function NavBar() {
 							type="search"
 							placeholder="Search..."
 							autoComplete="off"
+							onChange={(ev) => searchTerminDOM(ev.target.value)}
 						/>
 						<span data-search-clear="">
-							<TimesIcon className="icon-green" />
+							<TimesIcon className="icon-green" onClick={clearSearch} />
 						</span>
 					</div>
 				</div>

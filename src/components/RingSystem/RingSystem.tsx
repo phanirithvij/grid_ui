@@ -2,17 +2,36 @@
 
 import { css, jsx as _jsx } from "@emotion/core";
 import Tippy from "@tippyjs/react";
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { followCursor } from "tippy.js";
 import "tippy.js/dist/tippy.css"; // required for styling tippy
 import { ReactComponent as CircleIcon } from "../../assets/icons/circle.svg";
 import StateType from "../../models/rings";
-import Ring from "./Ring/Ring";
 import { LABELS } from "../Status";
+import Ring from "./Ring/Ring";
 
-const RingSystem = ({ state: { count, progresses } }: { state: StateType }) => {
-	const radius = 112;
-	const stroke = 12;
+interface RingSystemProps {
+	state: StateType;
+	textFormat?: string;
+	radius?: number;
+	stroke?: number;
+}
+
+/**
+ *	A set of rings
+ *
+ *	@prop `radius` Radius in pixels
+ *	@prop `stroke` Stroke width in pixels
+ *  @prop `textFormat` The center text format, default = `:freePercent:% free`
+ *
+ */
+const RingSystem = React.memo((props: RingSystemProps) => {
+	let {
+		state: { count, progresses },
+		radius = 112,
+		stroke = 10,
+		textFormat = ":freePercent:% free",
+	} = props;
 	let normalizedRadius = radius - stroke;
 
 	// NO state required as it should reset every render
@@ -42,7 +61,6 @@ const RingSystem = ({ state: { count, progresses } }: { state: StateType }) => {
 
 	useEffect(() => {
 		if (index === -1) return;
-		console.log(index, Object.keys(progresses).length);
 		if (index === Object.keys(progresses).length) {
 			parentCB(`${100 - totalProgress}% unknown`);
 			return;
@@ -56,40 +74,42 @@ const RingSystem = ({ state: { count, progresses } }: { state: StateType }) => {
 	});
 	offsets.push(100);
 
+	// A method to handle the tippy based on the mouseevent
 	const handleTippy = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
 		const [x2, y2] = [evt.nativeEvent.offsetX, evt.nativeEvent.offsetY];
 		const [x1, y1] = [radius, radius];
 		const distsquared = distSq(x1, y1, x2, y2);
 
-		// covers more area to maximize visibile time
+		// covers more area to maximize tippy's visibile time
+		// coputing if mouse is on the arc region
 		if (
 			distsquared < radius ** 2 &&
 			distsquared > (normalizedRadius - stroke) ** 2
 		) {
-			// TODO get current hovered arc
-			// Object.keys(progresses).forEach((x) => {
-			// 	const progress = progresses[parseInt(x)];
-			// 	console.log(progress.progress);
-			// });
 			let angle = (Math.atan2(y2 - y1, x2 - x1) * 180) / Math.PI;
+			// circle rotation compensation
+			// check css in the Ring component
 			angle += 90;
+			// angle will be < 0 when in 2nd quadrant
+			// it will be 0-90 Q1, 90-180 Q4, 180-270 Q3 then (-90, 0) Q2
+			// Making it positive to bring it to 270-360
 			if (angle < 0) {
 				angle += 360;
 			}
 			const offAngles = offsets.map((o) => (o * 360) / 100);
 
 			// could be more efficient like binary search
-			// but not really needed
-			// as number of rings are gauranteed to be <= 5
+			// but not really needed as number of rings are gauranteed to be <= 5
 			// So worst case is 5 iterations o(n)
 			let currentIndex = -1;
 			for (var i = 1; i <= offAngles.length; i++) {
-				// >= and <= so we will not get -1 at 0
+				// using >= and <= so we will not get -1 when crossing length-1 to 0 ring
 				if (offAngles[i - 1] <= angle && offAngles[i] >= angle) {
 					currentIndex = i - 1;
 					break;
 				}
 			}
+			// update the state if index changes
 			if (index !== currentIndex) {
 				setIndex(currentIndex);
 			}
@@ -98,7 +118,7 @@ const RingSystem = ({ state: { count, progresses } }: { state: StateType }) => {
 		} else hideTippy();
 	};
 
-	/* Square of dist between two coords */
+	/** Square of dist between two coords */
 	const distSq = (x1: number, y1: number, x2: number, y2: number) => {
 		return Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2);
 	};
@@ -131,7 +151,7 @@ const RingSystem = ({ state: { count, progresses } }: { state: StateType }) => {
 					min-width: ${radius * 2}px;
 				`}
 				onMouseMove={(ev) => handleTippy(ev)}
-				// onMouseOut={hideTippy}
+				// onMouseOut={hideTippy} // TODO what's the difference b/w leave, out ???
 				onMouseLeave={hideTippy}
 			>
 				<Tippy
@@ -139,9 +159,8 @@ const RingSystem = ({ state: { count, progresses } }: { state: StateType }) => {
 					followCursor={true}
 					plugins={[followCursor]}
 					content={currentTooltipContent}
-					duration={100}
 				>
-					<div></div>
+					<div id="tippy-controller"></div>
 				</Tippy>
 				{/* https://stackoverflow.com/a/23714832/8608146 */}
 				<div
@@ -152,7 +171,10 @@ const RingSystem = ({ state: { count, progresses } }: { state: StateType }) => {
 						transform: translate(-50%, -50%);
 					`}
 				>
-					{100 - totalProgress}% free
+					{textFormat.replace(
+						RegExp(/:freePercent:/g),
+						`${100 - totalProgress}`
+					)}
 				</div>
 				{[...Array(count)].map((_, i) => (
 					<Ring
@@ -219,7 +241,7 @@ const RingSystem = ({ state: { count, progresses } }: { state: StateType }) => {
 			</div>
 		</div>
 	);
-};
+});
 
 export default RingSystem;
 export { ColorInfo };

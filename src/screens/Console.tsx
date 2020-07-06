@@ -1,7 +1,8 @@
 /** @jsx _jsx*/
 import { css, jsx as _jsx } from "@emotion/core";
 import { loader } from "graphql.macro";
-import React, { useEffect, useReducer, useState } from "react";
+import Pagination from "rc-pagination";
+import React, { useCallback, useEffect, useReducer, useState } from "react";
 import { Query, QueryResult } from "react-apollo";
 import { Provider } from "react-redux";
 import { ReactComponent as SortIcon2 } from "../assets/icons/sorticon-plain.svg";
@@ -13,7 +14,9 @@ import "../css/common.css";
 import NodeType from "../models/node";
 import StateType from "../models/rings";
 import store from "../redux/store";
-import "./Nodes.css";
+import "./Console.css";
+import "rc-pagination/assets/index.css";
+import localeInfo from 'rc-pagination/lib/locale/en_US';
 
 /* TODO
 	1. add a pagination variable to the query
@@ -60,33 +63,55 @@ function reducer(state: StateType, action: { type: string; args?: any }) {
 	}
 }
 
-export default function Nodes() {
+export default function Console() {
 	let [activeNodes, setActiveNodes] = useState<NodeType[]>([]);
-	let [currentIndex, setcurrentIndex] = useState(0);
+	let [currentIndex] = useState(0);
 
 	let sortbutton = SortButton({ initialState: SelectState.up });
 
-	const addRing = () => {
+	const addRing = useCallback(() => {
 		dispatch({ type: "addRing", args: currentIndex });
+	}, [currentIndex]);
+
+	let [currentPage, setCurrentPage] = useState(1);
+	const onPageChange = (page: number, pageSize: number) => {
+		setCurrentPage(page);
 	};
-	const updateRing = () => {
-		dispatch({ type: "updateRing", args: currentIndex });
-	};
-	const updateIndex = (ev: React.ChangeEvent<HTMLSelectElement>) => {
-		const selected = parseInt(ev.target.value);
-		// console.log("selected", selected);
-		setcurrentIndex(selected);
-	};
+
+	// const updateRing = () => {
+	// 	dispatch({ type: "updateRing", args: currentIndex });
+	// };
+	// const updateIndex = (ev: React.ChangeEvent<HTMLSelectElement>) => {
+	// 	const selected = parseInt(ev.target.value);
+	// 	// console.log("selected", selected);
+	// 	setcurrentIndex(selected);
+	// };
 
 	const [state, dispatch] = useReducer(reducer, initialState);
 
-	// componentDidMount
+	// Initialize the 4 rings
 	useEffect(() => {
 		addRing();
 		addRing();
 		addRing();
 		addRing();
-	}, []);
+	}, [addRing]);
+
+	const paginationItemRenderer = (
+		page: number,
+		type: string,
+		element: React.ReactNode
+	) => {
+		if (type === "prev") {
+			return <button className="btn">Prev</button>;
+		} else if (type === "next") {
+			return <button className="btn">Next</button>;
+		} else if (type === "jump-next"){
+			return <i></i>
+		}
+		console.log(type);
+		return element;
+	};
 
 	return (
 		<Provider store={store}>
@@ -146,6 +171,21 @@ export default function Nodes() {
 											))}
 										</tbody>
 									</table>
+									<Pagination
+										css={css`
+											.rc-pagination-prev,
+											.rc-pagination-next {
+												border: 0;
+											}
+										`}
+										itemRender={paginationItemRenderer}
+										onChange={onPageChange}
+										current={currentPage}
+										showTitle={false}
+										total={100}
+										showQuickJumper={true}
+										locale={localeInfo}
+									/>
 								</React.Fragment>
 							);
 						}}
