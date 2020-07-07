@@ -2,21 +2,22 @@
 import { css, jsx as _jsx } from "@emotion/core";
 import { loader } from "graphql.macro";
 import Pagination from "rc-pagination";
+import "rc-pagination/assets/index.css";
+import localeInfo from "rc-pagination/lib/locale/en_US";
 import React, { useCallback, useEffect, useReducer, useState } from "react";
 import { Query, QueryResult } from "react-apollo";
 import { Provider } from "react-redux";
 import { ReactComponent as SortIcon2 } from "../assets/icons/sorticon-plain.svg";
-import NodeComponent from "../components/Node/Node";
+import NodeRow from "../components/Node/Node";
 import RingSystem from "../components/RingSystem/RingSystem";
 import SortButton, { SelectState } from "../components/SortButton";
-import { colors, StatusType, LABELS } from "../components/Status";
+import { colors, LABELS, StatusType } from "../components/Status";
 import "../css/common.css";
 import NodeType from "../models/node";
+import PaginationState from "../models/pagination";
 import RingDetails from "../models/rings";
 import store from "../redux/store";
 import "./Console.css";
-import "rc-pagination/assets/index.css";
-import localeInfo from "rc-pagination/lib/locale/en_US";
 
 /* TODO
 	1. add a pagination variable to the query
@@ -29,12 +30,33 @@ interface GqlDataType {
 	nodes: NodeType[];
 }
 
+// default for the <Pagination /> component
+const numPerPage = 10;
+
+const initialPaginationState: PaginationState = {
+	allNodes: [],
+	activeNodes: [],
+	currentPageCount: numPerPage,
+	currentPage: 1,
+};
+
 const initialDetails: RingDetails = {
 	count: 0,
 	progresses: {},
 };
 
-function reducer(state: RingDetails, action: { type: string; args?: any }) {
+enum PaginationDispatchTypes {
+	pagechange,
+	initialiaze,
+}
+
+interface PaginationDispatchArgs {
+	page?: number;
+	pageSize?: number;
+	allNodes?: NodeType[];
+}
+
+function ringReducer(state: RingDetails, action: { type: string; args?: any }) {
 	switch (action.type) {
 		case "addRing":
 			const newState = {
@@ -63,31 +85,69 @@ function reducer(state: RingDetails, action: { type: string; args?: any }) {
 	}
 }
 
+function paginationReducer(
+	state: PaginationState,
+	{
+		type: actionType,
+		args,
+	}: { type: PaginationDispatchTypes; args?: PaginationDispatchArgs }
+) {
+	let newState = { ...state };
+	switch (actionType) {
+		case PaginationDispatchTypes.pagechange:
+			const { page, pageSize } = args!;
+			newState.activeNodes = newState.allNodes.slice(
+				(page! - 1) * numPerPage,
+				(page! - 1) * numPerPage + pageSize!
+			);
+			newState.currentPage = page!;
+			newState.currentPageCount = pageSize!;
+			return newState;
+		case PaginationDispatchTypes.initialiaze:
+			const { allNodes } = args!;
+			newState = {
+				...state,
+				allNodes: allNodes!,
+				activeNodes: allNodes!.slice(0, numPerPage),
+			};
+			return newState;
+		default:
+			throw new Error();
+	}
+}
+
 export default function Console() {
-	let [activeNodes, setActiveNodes] = useState<NodeType[]>([]);
 	let [currentIndex] = useState(0);
 
 	let sortbutton = SortButton({ initialState: SelectState.up });
 
 	const addRing = useCallback(() => {
-		dispatch({ type: "addRing", args: currentIndex });
+		ringDispatch({ type: "addRing", args: currentIndex });
 	}, [currentIndex]);
 
-	let [currentPage, setCurrentPage] = useState(1);
 	const onPageChange = (page: number, pageSize: number) => {
-		setCurrentPage(page);
+		paginationDispatch({
+			type: PaginationDispatchTypes.pagechange,
+			args: { page, pageSize },
+		});
+	};
+
+	const setInitialQLdata = (allNodes: NodeType[]) => {
+		paginationDispatch({
+			type: PaginationDispatchTypes.initialiaze,
+			args: { allNodes },
+		});
 	};
 
 	// const updateRing = () => {
-	// 	dispatch({ type: "updateRing", args: currentIndex });
-	// };
-	// const updateIndex = (ev: React.ChangeEvent<HTMLSelectElement>) => {
-	// 	const selected = parseInt(ev.target.value);
-	// 	// console.log("selected", selected);
-	// 	setcurrentIndex(selected);
+	// 	ringDispatch({ type: "updateRing", args: currentIndex });
 	// };
 
-	const [details, dispatch] = useReducer(reducer, initialDetails);
+	const [details, ringDispatch] = useReducer(ringReducer, initialDetails);
+	const [paginationState, paginationDispatch] = useReducer(
+		paginationReducer,
+		initialPaginationState
+	);
 
 	// Initialize the 4 rings
 	useEffect(() => {
@@ -106,7 +166,6 @@ export default function Console() {
 		} else if (type === "jump-next" || type === "jump-prev") {
 			return <i></i>;
 		}
-		console.log(type);
 		return element;
 	};
 
@@ -116,10 +175,12 @@ export default function Console() {
 				<div className="padding highlightable">
 					<Query
 						query={NODES_QUERY}
+						// Handle variables on the server side
+						variables={{ count: 10, offset: 0 }}
 						// TODO remove <Query /> and try another way if two builds are not allowed
 						// rebuilds twice because of setting nodes
 						// do not use <Query /> if that's not intended
-						onCompleted={(data: GqlDataType) => setActiveNodes(data!.nodes)}
+						onCompleted={(data: GqlDataType) => setInitialQLdata(data!.nodes)}
 					>
 						{(result: QueryResult<GqlDataType>) => {
 							let { loading, error } = result;
@@ -132,6 +193,16 @@ export default function Console() {
 							return (
 								<React.Fragment>
 									<RingSystem details={details} />
+									<Pagination
+										style={{ display: "flex", justifyContent: "flex-end" }}
+										itemRender={paginationItemRenderer}
+										onChange={onPageChange}
+										current={paginationState.currentPage}
+										defaultPageSize={numPerPage}
+										total={paginationState.allNodes.length}
+										showQuickJumper={true}
+										locale={localeInfo}
+									/>
 									<table className="table table-hover">
 										<thead>
 											<tr>
@@ -170,22 +241,18 @@ export default function Console() {
 											`}
 										>
 											{/* Map over the nodes */}
-											{activeNodes.map((n, i) => (
-												<NodeComponent node={n} key={n.id} index={i} />
+											{paginationState.activeNodes.map((n, i) => (
+												<NodeRow node={n} key={n.id} index={i} />
 											))}
 										</tbody>
 									</table>
 									<Pagination
-										css={css`
-											.rc-pagination-prev,
-											.rc-pagination-next {
-												border: 0;
-											}
-										`}
+										style={{ display: "flex", justifyContent: "flex-end" }}
 										itemRender={paginationItemRenderer}
 										onChange={onPageChange}
-										current={currentPage}
-										total={100}
+										current={paginationState.currentPage}
+										defaultPageSize={numPerPage}
+										total={paginationState.allNodes.length}
 										showQuickJumper={true}
 										locale={localeInfo}
 									/>

@@ -31,7 +31,7 @@ interface RingSystemProps {
 const RingSystem = React.memo((props: RingSystemProps) => {
 	let {
 		details: { count, progresses },
-		radius = 112,
+		radius = 80,
 		stroke = 10,
 		showLabels = true,
 		textFormat = ":freePercent:% free",

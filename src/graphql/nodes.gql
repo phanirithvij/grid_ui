@@ -1,32 +1,32 @@
-query {
-  nodes {
-    debug
-    platform
-    host
-    port
-    role
-    timeout
-    cleanUpCycle
-    maxSession
-    downPollingLimit
-    browserTimeout
-    unregisterIfStillDownAfter
-    remoteHost
-    registerCycle
-    register
-    proxy
-    nodeStatusCheckTimeout
-    nodePolling
-    id
-    hub
-    capabilities {
-      browserName
-      marionette
-      maxInstances
-      platform
-      platformName
-      seleniumProtocol
-      serverConfigUUID
-    }
-  }
+query NodeQuery($count: Int!, $offset: Int!) {
+	nodes(first: $count, offset: $offset) {
+		debug
+		platform
+		host
+		port
+		role
+		timeout
+		cleanUpCycle
+		maxSession
+		downPollingLimit
+		browserTimeout
+		unregisterIfStillDownAfter
+		remoteHost
+		registerCycle
+		register
+		proxy
+		nodeStatusCheckTimeout
+		nodePolling
+		id
+		hub
+		capabilities {
+			browserName
+			marionette
+			maxInstances
+			platform
+			platformName
+			seleniumProtocol
+			serverConfigUUID
+		}
+	}
 }

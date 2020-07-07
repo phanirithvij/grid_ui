@@ -4,7 +4,7 @@ import React, { useEffect, useReducer, useState } from "react";
 import { Query, QueryResult } from "react-apollo";
 import { Provider } from "react-redux";
 import { ReactComponent as SortIcon2 } from "../assets/icons/sorticon-plain.svg";
-import NodeComponent from "../components/Node/Node";
+import NodeRow from "../components/Node/Node";
 import RingSystem from "../components/RingSystem/RingSystem";
 import SortButton, { SelectState } from "../components/SortButton";
 import "../css/common.css";
@@ -168,7 +168,7 @@ export default function Nodes() {
 										<tbody>
 											{/* Map over the nodes */}
 											{activeNodes.map((n, i) => (
-												<NodeComponent node={n} key={n.id} index={i} />
+												<NodeRow node={n} key={n.id} index={i} />
 											))}
 										</tbody>
 									</table>

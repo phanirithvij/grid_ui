@@ -13,35 +13,42 @@ import { Status, StatusType } from "../Status";
 // eslint-disable-next-line
 const NODE_QUERY = loader("../../graphql/node.gql");
 
-export default function NodeComponent(props: {
-	node: NodeType;
-	index: number;
-}) {
-	const { node, index } = props;
-	return (
-		// Wrapping in a fragment to avoid a not so meaningful lint issue
-		// Possibly a bug. To see what it is remove this top level fragment
-		<React.Fragment>
-			<tr
-				// Remove the vertical border in this table
-				css={css`
-					td {
-						border: 0 !important;
-					}
-				`}
-			>
-				<th scope="row">{index + 1}</th>
-				{/* <td colSpan={2}>Larry the Bird</td> */}
-				<td>Node {index + 1}</td>
-				<td>{node.id}</td>
-				<td>{node.platform}</td>
-				<td>
-					<Status state={StatusType.down} />
-				</td>
-				<td>
-					<RightIcon />
-				</td>
-			</tr>
-		</React.Fragment>
-	);
-}
+const NodeRow = React.memo(
+	(props: { node: NodeType; index: number; dispatch?: any }) => {
+		const { node, index } = props;
+		return (
+			// Wrapping in a fragment to avoid a not so meaningful lint issue
+			// Possibly a bug. To see what it is remove this top level fragment
+			<React.Fragment>
+				<tr
+					// Remove the vertical border in this table
+					css={css`
+						td {
+							border: 0 !important;
+						}
+					`}
+				>
+					<th scope="row">{index + 1}</th>
+					{/* <td colSpan={2}>Larry the Bird</td> */}
+					<td>Node {index + 1}</td>
+					<td>{node.id}</td>
+					<td>{node.platform}</td>
+					<td>
+						<Status state={StatusType.down} />
+					</td>
+					<td
+						css={css`
+							cursor: pointer;
+						`}
+						data-index={index}
+						onClick={() => console.log(index)}
+					>
+						<RightIcon />
+					</td>
+				</tr>
+			</React.Fragment>
+		);
+	}
+);
+
+export default NodeRow;
