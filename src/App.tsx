@@ -10,14 +10,16 @@ import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 /* 2 */ import "./css/theme-selenium.css";
 /* 3 */ import "./App.css";
 
-import HelpPage from "./screens/HelpPage";
-import Console from "./screens/Console";
+import HelpPage from "./screens/HelpPage/HelpPage";
+import Console from "./screens/Console/Console";
 // import SearchAppBar from "./components/AppBar/AppBar";
 import NavBar from "./components/NavBar/NavBar";
+import Hubpage from "./screens/Hub/Hub";
 
 const cache = new InMemoryCache();
 const link = new HttpLink({
 	// document.location.protocol + "//" + document.location.host + "/graphql"
+	// uri: "http://localhost:4444/graphql",
 	uri: "http://localhost:5000/graphql",
 });
 
@@ -26,6 +28,13 @@ const client = new ApolloClient({
 	link,
 });
 
+declare global {
+	interface Window {
+		rerunSearch: VoidFunction;
+		pbar: any;
+	}
+}
+
 function App() {
 	return (
 		<ApolloProvider client={client}>
@@ -33,6 +42,7 @@ function App() {
 				<NavBar />
 				<Switch>
 					<Route exact path="/" component={HelpPage} />
+					<Route exact path="/hub" component={Hubpage} />
 					<Route exact path="/home" component={HelpPage} />
 					<Route exact path="/console" component={Console} />
 					<Route component={HelpPage} />

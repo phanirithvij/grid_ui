@@ -2,7 +2,6 @@
 import { loader } from "graphql.macro";
 import React, { useEffect, useReducer, useState } from "react";
 import { Query, QueryResult } from "react-apollo";
-import { Provider } from "react-redux";
 import { ReactComponent as SortIcon2 } from "../assets/icons/sorticon-plain.svg";
 import NodeRow from "../components/Node/Node";
 import RingSystem from "../components/RingSystem/RingSystem";
@@ -10,7 +9,6 @@ import SortButton, { SelectState } from "../components/SortButton";
 import "../css/common.css";
 import NodeType from "../models/node";
 import RingDetails from "../models/rings";
-import store from "../redux/store";
 import "./Nodes.module.css";
 import { css, jsx as _jsx } from "@emotion/core";
 
@@ -113,71 +111,69 @@ export default function Nodes() {
 	}, []);
 
 	return (
-		<Provider store={store}>
-			<section id="body">
-				<div className="padding highlightable">
-					<Query
-						query={NODES_QUERY}
-						// TODO remove <Query /> and try another way if two builds are not allowed
-						// rebuilds twice because of setting nodes
-						// do not use <Query /> if that's not intended
-						onCompleted={(data: GqlDataType) => setActiveNodes(data!.nodes)}
-					>
-						{(result: QueryResult<GqlDataType>) => {
-							let { loading, error } = result;
-							if (loading) return <h4>fetching...</h4>;
-							if (error) {
-								console.error(error);
-								// TODO show error message properly
-								return <div>{error.message}</div>;
-							}
-							return (
-								<React.Fragment>
-									<button onClick={increment}>increment</button>
-									<button onClick={decrement}>decrement</button>
-									<button onClick={update}>update</button>
-									<select onChange={updateIndex}>
-										{Object.entries(state.progresses).map(([key, value]) => (
-											<option key={key} value={key}>
-												value: {JSON.stringify(value)}
-											</option>
+		<section id="body">
+			<div className="padding highlightable">
+				<Query
+					query={NODES_QUERY}
+					// TODO remove <Query /> and try another way if two builds are not allowed
+					// rebuilds twice because of setting nodes
+					// do not use <Query /> if that's not intended
+					onCompleted={(data: GqlDataType) => setActiveNodes(data!.nodes)}
+				>
+					{(result: QueryResult<GqlDataType>) => {
+						let { loading, error } = result;
+						if (loading) return <h4>fetching...</h4>;
+						if (error) {
+							console.error(error);
+							// TODO show error message properly
+							return <div>{error.message}</div>;
+						}
+						return (
+							<React.Fragment>
+								<button onClick={increment}>increment</button>
+								<button onClick={decrement}>decrement</button>
+								<button onClick={update}>update</button>
+								<select onChange={updateIndex}>
+									{Object.entries(state.progresses).map(([key, value]) => (
+										<option key={key} value={key}>
+											value: {JSON.stringify(value)}
+										</option>
+									))}
+								</select>
+								<RingSystem details={state} />
+								<table className="table table-hover">
+									<thead>
+										<tr>
+											<th
+												scope="col"
+												onClick={increment}
+												css={css`
+													cursor: pointer;
+												`}
+											>
+												#
+											</th>
+											<th scope="col">Name {sortbutton}</th>
+											<th scope="col">
+												ID <SortIcon2 />
+											</th>
+											<th scope="col">OS</th>
+											<th scope="col">status</th>
+											<th scope="col"></th>
+										</tr>
+									</thead>
+									<tbody>
+										{/* Map over the nodes */}
+										{activeNodes.map((n, i) => (
+											<NodeRow node={n} key={n.id} index={i} />
 										))}
-									</select>
-									<RingSystem details={state} />
-									<table className="table table-hover">
-										<thead>
-											<tr>
-												<th
-													scope="col"
-													onClick={increment}
-													css={css`
-														cursor: pointer;
-													`}
-												>
-													#
-												</th>
-												<th scope="col">Name {sortbutton}</th>
-												<th scope="col">
-													ID <SortIcon2 />
-												</th>
-												<th scope="col">OS</th>
-												<th scope="col">status</th>
-												<th scope="col"></th>
-											</tr>
-										</thead>
-										<tbody>
-											{/* Map over the nodes */}
-											{activeNodes.map((n, i) => (
-												<NodeRow node={n} key={n.id} index={i} />
-											))}
-										</tbody>
-									</table>
-								</React.Fragment>
-							);
-						}}
-					</Query>
-				</div>
-			</section>
-		</Provider>
+									</tbody>
+								</table>
+							</React.Fragment>
+						);
+					}}
+				</Query>
+			</div>
+		</section>
 	);
 }

@@ -13,7 +13,7 @@ import Ring from "./Ring/Ring";
 interface RingSystemProps {
 	/** State of the Rings */
 	details: RingDetails;
-	/**  `showLabels` default: false*/
+	/**  `showLabels` default: true. Will show labels beside the ring*/
 	showLabels?: boolean;
 	/**  `textFormat` The center text format, default = `:freePercent:% free`*/
 	textFormat?: string;
@@ -33,7 +33,9 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 		details: { count, progresses },
 		radius = 80,
 		stroke = 10,
-		showLabels = true,
+		showLabels = false,
+		// TODO document this
+		// Look at all possible variables that can be used in the center
 		textFormat = ":freePercent:% free",
 	} = props;
 	let normalizedRadius = radius - stroke;
@@ -143,7 +145,7 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 		<div
 			css={css`
 				display: flex;
-				justify-content: space-between;
+				align-items: center;
 			`}
 		>
 			<div
@@ -207,19 +209,9 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 			<div
 				css={css`
 					width: 60%;
-					position: relative;
 				`}
 			>
-				<div
-					css={css`
-						width: 100%;
-						top: 50%;
-						// left: -10%;
-						position: absolute;
-						transform: translate(-10%, -50%);
-					`}
-					style={{ alignSelf: "center" }}
-				>
+				<div>
 					{(() => {
 						if (count > 7) count = 7;
 					})()}
@@ -269,7 +261,8 @@ const ColorInfo = React.memo(
 					<div
 						css={css`
 							height: 20px;
-							position: relative;
+							display: flex;
+							align-items: center;
 						`}
 					>
 						<Tippy content={`${progress}%`} placement="left">
@@ -277,19 +270,12 @@ const ColorInfo = React.memo(
 								id={id}
 								css={css`
 									fill: ${color};
-									float: left;
-									height: 100%;
-									position: absolute;
 								`}
 							/>
 						</Tippy>
 						<div
 							css={css`
-								left: 30px;
-								position: absolute;
-								height: 100%;
-								top: 15%;
-								transform: translate(-10%, -30%);
+								padding-left: 6px;
 							`}
 						>
 							{text}

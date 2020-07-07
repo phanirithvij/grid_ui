@@ -1,32 +1,16 @@
 query NodeQuery($count: Int!, $offset: Int!) {
 	nodes(first: $count, offset: $offset) {
-		debug
+		id
 		platform
 		host
 		port
-		role
-		timeout
-		cleanUpCycle
 		maxSession
-		downPollingLimit
-		browserTimeout
-		unregisterIfStillDownAfter
-		remoteHost
-		registerCycle
-		register
-		proxy
-		nodeStatusCheckTimeout
-		nodePolling
-		id
 		hub
 		capabilities {
 			browserName
-			marionette
 			maxInstances
 			platform
 			platformName
-			seleniumProtocol
-			serverConfigUUID
 		}
 	}
 }

@@ -46,3 +46,7 @@
 .rc-pagination-options-quick-jumper input:focus {
   border-color: var(--MENU-HEADER-BG-color);
 }
+
+#body .padding {
+  padding: 1rem 2rem;
+}

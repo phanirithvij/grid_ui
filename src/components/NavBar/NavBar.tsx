@@ -16,7 +16,8 @@ import searchHighlight from "../../core/Search";
  *  Look at `core/Search.ts` for the highlight function
  */
 export default function NavBar() {
-	let [prevSearch] = useState<any>();
+	let [prevSearch, setPrevSearch] = useState<any>();
+	let [prevTerm, setPrevTerm] = useState<string>("");
 
 	const searchTerminDOM = (term: string) => {
 		if (prevSearch) {
@@ -24,8 +25,13 @@ export default function NavBar() {
 		}
 		if (term && term !== "") {
 			prevSearch = searchHighlight(term);
+			setPrevSearch(prevSearch);
 		}
+		setPrevTerm(term);
 	};
+
+	const rerunSearch = () => searchTerminDOM(prevTerm);
+	window.rerunSearch = rerunSearch;
 
 	const clearSearch = () => {
 		const searchBar = document.getElementById("search-by") as HTMLInputElement;
@@ -38,16 +44,20 @@ export default function NavBar() {
 		<React.Fragment>
 			<nav id="sidebar">
 				<div id="header-wrapper">
-					<div id="header">
+					<div id="header" style={{ height: "70px" }}>
 						<Link id="logo" to="/home">
-							<img src={seleniumIcon} alt="logo" className={styles.iconDetails} />
+							<img
+								src={seleniumIcon}
+								alt="logo"
+								className={styles.iconDetails}
+							/>
 							<div
 								style={{
 									marginLeft: "60px",
 									marginTop: "5px",
 								}}
 							>
-								<h4 className={styles.h4}>Selenium Grid</h4>
+								<h3 className={styles.h4}>Selenium Grid</h3>
 							</div>
 						</Link>
 					</div>
@@ -79,6 +89,24 @@ export default function NavBar() {
 								Hub
 								<i className="fas fa-check read-icon"></i>
 							</Link>
+
+							<ul>
+								<li
+									data-nav-id="/grid/purposes_and_main_functionalities/"
+									title="Purposes and main functionalities"
+									className="dd-item "
+								>
+									<a href="https://www.selenium.dev/documentation/en/grid/purposes_and_main_functionalities/">
+										Node 1<i className="fas fa-check read-icon"></i>
+									</a>
+								</li>
+							</ul>
+						</li>
+						<li data-nav-id="/docs/" title="Docs" className="dd-item parent">
+							<a href="https://www.selenium.dev/documentation/en/grid/">
+								Docs
+								<i className="fas fa-check read-icon"></i>
+							</a>
 
 							<ul>
 								<li
@@ -137,7 +165,7 @@ export default function NavBar() {
 									</ul>
 								</li>
 							</ul>
-						</li>{" "}
+						</li>
 					</ul>
 				</div>
 			</nav>

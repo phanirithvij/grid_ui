@@ -1,2 +1,3 @@
-declare module 'findandreplacedomtext';
-declare module 'rc-pagination/lib/locale/en_US';
+declare module "findandreplacedomtext";
+declare module "rc-pagination/lib/locale/en_US";
+declare module "progressbar.js";
