@@ -1,5 +1,3 @@
-/**\ @\jsx jsx */
-// import { css, jsx } from "@emotion/core";
 import { Link } from "react-router-dom";
 import logo from "../../assets/selenium.png";
 import "../../css/common.css";

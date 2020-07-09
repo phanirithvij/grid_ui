@@ -21,6 +21,7 @@ interface RingSystemProps {
 	radius?: number;
 	/** `stroke` Stroke width in pixels*/
 	stroke?: number;
+	children?: JSX.Element;
 }
 
 /**
@@ -37,6 +38,7 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 		// TODO document this
 		// Look at all possible variables that can be used in the center
 		textFormat = ":freePercent:% free",
+		children,
 	} = props;
 	let normalizedRadius = radius - stroke;
 
@@ -169,6 +171,7 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 					<div id="tippy-controller"></div>
 				</Tippy>
 				{/* https://stackoverflow.com/a/23714832/8608146 */}
+				{children}
 				<div
 					css={css`
 						position: absolute;

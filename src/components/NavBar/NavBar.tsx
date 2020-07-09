@@ -4,7 +4,7 @@
 import { jsx } from "@emotion/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { ReactComponent as SearchIcon } from "../../assets/icons/search.svg";
+import { ReactComponent as SearchIcon } from "../../assets/icons/search2.svg";
 import { ReactComponent as TimesIcon } from "../../assets/icons/times.svg";
 import seleniumIcon from "../../assets/selenium.svg";
 import "../../css/icons.css";

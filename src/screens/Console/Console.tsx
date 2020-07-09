@@ -45,14 +45,20 @@ const initialDetails: RingDetails = {
 };
 
 enum PaginationDispatchTypes {
-	pagechange,
+	onPagechange,
 	initialiaze,
+}
+
+enum PagenavType {
+	next = "next",
+	prev = "prev",
 }
 
 interface PaginationDispatchArgs {
 	page?: number;
 	pageSize?: number;
 	allNodes?: NodeType[];
+	type?: PagenavType;
 }
 
 function ringReducer(state: RingDetails, action: { type: string; args?: any }) {
@@ -90,7 +96,7 @@ function paginationReducer(
 ) {
 	let newState = { ...state };
 	switch (actionType) {
-		case PaginationDispatchTypes.pagechange:
+		case PaginationDispatchTypes.onPagechange:
 			const { page, pageSize } = args!;
 			newState.activeNodes = newState.allNodes.slice(
 				(page! - 1) * numPerPage,
@@ -128,7 +134,7 @@ export default function Console() {
 
 	const onPageChange = (page: number, pageSize: number) => {
 		paginationDispatch({
-			type: PaginationDispatchTypes.pagechange,
+			type: PaginationDispatchTypes.onPagechange,
 			args: { page, pageSize },
 		});
 	};
@@ -150,34 +156,71 @@ export default function Console() {
 		initialPaginationState
 	);
 
-	// Initialize the 4 rings
-	useEffect(() => {
-		LABELS.forEach((_) => addRing());
-	}, [addRing]);
-
-	useEffect(() => {
-		// re run the previous search after page changes
-		window.rerunSearch();
-	}, [paginationState]);
-
 	const paginationItemRenderer = (
 		_page: number,
 		type: string,
 		element: React.ReactNode
 	) => {
 		if (type === "prev") {
-			return <button className="btn">Prev</button>;
+			return (
+				<button className="btn" id={`${PagenavType.prev}-page`}>
+					Prev
+				</button>
+			);
 		} else if (type === "next") {
-			return <button className="btn">Next</button>;
+			return (
+				<button className="btn" id={`${PagenavType.next}-page`}>
+					Next
+				</button>
+			);
 		} else if (type === "jump-next" || type === "jump-prev") {
 			return <i></i>;
 		}
 		return element;
 	};
 
-	// TODO keybinds
-	// n, -> => Next page
-	// p, <- => Previous page
+	// Initialize the 4 rings
+	useEffect(() => LABELS.forEach((_) => addRing()), [addRing]);
+
+	// re run the previous search after page changes
+	useEffect(window.rerunSearch, [paginationState]);
+
+	// keybinds
+	// [N, n, ->] => Next page
+	// [P, p, <-] => Previous page
+	const onKeyDown = (event: KeyboardEvent) => {
+		switch (event.key) {
+			case "ArrowRight":
+			case "n":
+			case "N":
+				{
+					let btn = document.querySelector(
+						`#${PagenavType.next}-page`
+					) as HTMLButtonElement;
+					btn.click();
+				}
+				break;
+			case "ArrowLeft":
+			case "p":
+			case "P":
+				{
+					let btn = document.querySelector(
+						`#${PagenavType.prev}-page`
+					) as HTMLButtonElement;
+					btn.click();
+				}
+				break;
+			default:
+				return;
+		}
+	};
+
+	useEffect(() => {
+		window.addEventListener("keydown", onKeyDown);
+		return () => {
+			window.removeEventListener("keydown", onKeyDown);
+		};
+	});
 
 	return (
 		<section id="body">
