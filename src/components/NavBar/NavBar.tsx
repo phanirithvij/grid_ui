@@ -92,13 +92,13 @@ export default function NavBar() {
 
 							<ul>
 								<li
-									data-nav-id="/grid/purposes_and_main_functionalities/"
-									title="Purposes and main functionalities"
+									data-nav-id="/node/1/"
+									title="Node 1"
 									className="dd-item "
 								>
-									<a href="https://www.selenium.dev/documentation/en/grid/purposes_and_main_functionalities/">
+									<Link to="/node/1">
 										Node 1<i className="fas fa-check read-icon"></i>
-									</a>
+									</Link>
 								</li>
 							</ul>
 						</li>

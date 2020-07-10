@@ -20,12 +20,20 @@ export enum StatusType {
 
 export const LABELS = ["running", "idle", "unresponsive", "down"];
 
-export const colors: { [key in StatusType]: string } = {
+export const LABEL_COLORS: { [key in StatusType]: string } = {
 	[StatusType.running]: "#3BEC70",
 	[StatusType.idle]: "#E4D400",
 	[StatusType.down]: "#E40000",
 	[StatusType.unresponsive]: "#8b8b8b",
 };
+
+/* export const LABEL_COLORS: { [key in StatusType]: string } = {
+	[StatusType.running]: "#3BEC70",
+	[StatusType.idle]: "#E4D400",
+	[StatusType.down]: "#E40000",
+	[StatusType.unresponsive]: "#8b8b8b",
+};
+ */
 
 export const Status = React.memo((props: { state: StatusType }) => {
 	let { state } = props;
@@ -36,7 +44,7 @@ export const Status = React.memo((props: { state: StatusType }) => {
 				<Tippy content={LABELS[state]}>
 					<CircleIcon
 						css={css`
-							fill: ${colors[state]};
+							fill: ${LABEL_COLORS[state]};
 							float: left;
 						`}
 					/>

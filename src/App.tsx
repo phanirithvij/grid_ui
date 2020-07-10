@@ -15,12 +15,13 @@ import Console from "./screens/Console/Console";
 // import SearchAppBar from "./components/AppBar/AppBar";
 import NavBar from "./components/NavBar/NavBar";
 import Hubpage from "./screens/Hub/Hub";
+import NodeInfo from "./screens/Node/NodeInfo/NodeInfo";
 
 const cache = new InMemoryCache();
 const link = new HttpLink({
 	// document.location.protocol + "//" + document.location.host + "/graphql"
-	// uri: "http://localhost:4444/graphql",
-	uri: "http://localhost:5000/graphql",
+	uri: "http://localhost:4444/graphql",
+	// uri: "http://localhost:5000/graphql",
 });
 
 const client = new ApolloClient({
@@ -43,6 +44,7 @@ function App() {
 				<Switch>
 					<Route exact path="/" component={HelpPage} />
 					<Route exact path="/hub" component={Hubpage} />
+					<Route exact path="/node/:id" component={NodeInfo} />
 					<Route exact path="/home" component={HelpPage} />
 					<Route exact path="/console" component={Console} />
 					<Route component={HelpPage} />

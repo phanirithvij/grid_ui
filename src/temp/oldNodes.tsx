@@ -3,7 +3,7 @@ import { loader } from "graphql.macro";
 import React, { useEffect, useReducer, useState } from "react";
 import { Query, QueryResult } from "react-apollo";
 import { ReactComponent as SortIcon2 } from "../assets/icons/sorticon-plain.svg";
-import NodeRow from "../components/Node/Node";
+import NodeRow from "../components/Node/NodeRow";
 import RingSystem from "../components/RingSystem/RingSystem";
 import SortButton, { SelectState } from "../components/SortButton";
 import "../css/common.css";

@@ -5,7 +5,7 @@ import ProgressBar from "progressbar.js";
 import React, { useCallback, useEffect, useReducer, useState } from "react";
 import { Query, QueryResult } from "react-apollo";
 import RingSystem from "../../components/RingSystem/RingSystem";
-import { colors, LABELS, StatusType } from "../../components/Status";
+import { LABEL_COLORS, LABELS, StatusType } from "../../components/Status";
 import TopBar from "../../components/TopBar";
 import "../../css/common.css";
 import NodeType from "../../models/node";
@@ -32,7 +32,7 @@ function ringReducer(state: RingDetails, action: { type: string; args?: any }) {
 			};
 			newState.progresses[state.count] = {
 				progress: 25,
-				color: colors[state.count as StatusType],
+				color: LABEL_COLORS[state.count as StatusType],
 			};
 			return newState;
 		case "updateRing":

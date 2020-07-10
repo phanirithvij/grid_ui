@@ -7,16 +7,17 @@ import localeInfo from "rc-pagination/lib/locale/en_US";
 import React, { useCallback, useEffect, useReducer, useState } from "react";
 import { Query, QueryResult } from "react-apollo";
 import { ReactComponent as SortIcon2 } from "../../assets/icons/sorticon-plain.svg";
-import NodeRow from "../../components/Node/Node";
+import NodeRow from "../../components/Node/NodeRow";
 import RingSystem from "../../components/RingSystem/RingSystem";
 import SortButton, { SelectState } from "../../components/SortButton";
-import { colors, LABELS, StatusType } from "../../components/Status";
+import { LABELS, LABEL_COLORS, StatusType } from "../../components/Status";
+import TopBar from "../../components/TopBar";
 import "../../css/common.css";
 import NodeType from "../../models/node";
 import PaginationState from "../../models/pagination";
 import RingDetails from "../../models/rings";
 import "./Console.css";
-import TopBar from "../../components/TopBar";
+import keyboardJS from "keyboardjs";
 
 /* TODO
 	1. add a pagination variable to the query
@@ -69,8 +70,8 @@ function ringReducer(state: RingDetails, action: { type: string; args?: any }) {
 				progresses: { ...state.progresses },
 			};
 			newState.progresses[state.count] = {
-				progress: 25,
-				color: colors[state.count as StatusType],
+				progress: Math.round(Math.random() * 40) + 1,
+				color: LABEL_COLORS[state.count as StatusType],
 			};
 			return newState;
 		case "updateRing":
@@ -185,30 +186,35 @@ export default function Console() {
 	// re run the previous search after page changes
 	useEffect(window.rerunSearch, [paginationState]);
 
-	// keybinds
+	// register keybinds
 	// [N, n, ->] => Next page
 	// [P, p, <-] => Previous page
+
+	useEffect(() => {
+		keyboardJS.bind(["n", "N", "right"], (e) => {
+			let btn = document.querySelector(
+				`#${PagenavType.next}-page`
+			) as HTMLButtonElement;
+			btn.click();
+		});
+
+		keyboardJS.bind(["p", "P", "left"], (e) => {
+			let btn = document.querySelector(
+				`#${PagenavType.prev}-page`
+			) as HTMLButtonElement;
+			btn.click();
+		});
+	});
+
 	const onKeyDown = (event: KeyboardEvent) => {
 		switch (event.key) {
 			case "ArrowRight":
 			case "n":
 			case "N":
-				{
-					let btn = document.querySelector(
-						`#${PagenavType.next}-page`
-					) as HTMLButtonElement;
-					btn.click();
-				}
 				break;
 			case "ArrowLeft":
 			case "p":
 			case "P":
-				{
-					let btn = document.querySelector(
-						`#${PagenavType.prev}-page`
-					) as HTMLButtonElement;
-					btn.click();
-				}
 				break;
 			default:
 				return;
