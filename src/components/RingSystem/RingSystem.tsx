@@ -46,6 +46,7 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 	let offsets = [0];
 
 	let [index, setIndex] = useState(-1);
+	let [filterIndex, setFilterIndex] = useState(-1);
 
 	const [istippyVisible, setVisible] = useState(false);
 	const showTippy = () => {
@@ -67,6 +68,7 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 		[currentTooltipContent]
 	);
 
+	// re renders whenever these change
 	useEffect(() => {
 		if (index === -1) return;
 		if (index === Object.keys(progresses).length) {
@@ -76,15 +78,23 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 		parentCB(`${progresses[index].progress}% ${LABELS[index]}`);
 	}, [index, parentCB, progresses, totalProgress]);
 
+	// To calculate the ring offset positions
 	Object.values(progresses).forEach((x) => {
 		totalProgress += x.progress;
 		offsets.push(totalProgress);
 	});
+	// Add one 100 at the end for the logic in the loop in ringIndexFromCoords
 	offsets.push(100);
 
-	// A method to handle the tippy based on the mouseevent
-	const handleTippy = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-		const [x2, y2] = [evt.nativeEvent.offsetX, evt.nativeEvent.offsetY];
+	/**
+	 * 
+	 * @param x2 X coord of the mouse relative to parent
+	 * @param y2 Y coord of the mouse relative to parent
+	 * 
+	 * Returns the index of the ring which exists at the given coords
+	 * Returns -1 if outside the ring arc area
+	 */
+	const ringIndexFromCoords = (x2: number, y2: number) => {
 		const [x1, y1] = [radius, radius];
 		const distsquared = distSq(x1, y1, x2, y2);
 
@@ -117,13 +127,47 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 					break;
 				}
 			}
+			return currentIndex;
+		}
+		return -1;
+	};
+
+	/**
+	 * 
+	 * @param evt React onclick mouse event
+	 * 
+	 * Handles the filtering of the shown stuff based on the clicked index
+	 */
+	const handleClick = (evt: React.MouseEvent<HTMLElement, MouseEvent>) => {
+		const [x2, y2] = [evt.nativeEvent.offsetX, evt.nativeEvent.offsetY];
+		const currentFilterIndex = ringIndexFromCoords(x2, y2);
+
+		if (currentFilterIndex !== -1) {
+			// update the state if index changes
+			if (filterIndex !== currentFilterIndex) {
+				setFilterIndex(currentFilterIndex);
+			}
+			console.log("Clicked on ring numbered", currentFilterIndex);
+		} else {
+			console.log("clicked outside mate -> will clear filter");
+		}
+	};
+
+	// A method to handle the tippy based on the mouseevent
+	const handleTippy = (evt: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+		const [x2, y2] = [evt.nativeEvent.offsetX, evt.nativeEvent.offsetY];
+		const currentIndex = ringIndexFromCoords(x2, y2);
+
+		if (currentIndex !== -1) {
 			// update the state if index changes
 			if (index !== currentIndex) {
 				setIndex(currentIndex);
 			}
-
 			showTippy();
-		} else hideTippy();
+		} else {
+			// outside the ring or inside the ring i.e. not on the arc
+			hideTippy();
+		}
 	};
 
 	/** Square of dist between two coords */
@@ -158,6 +202,7 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 					width: ${radius * 2}px;
 					min-width: ${radius * 2}px;
 				`}
+				onClick={handleClick}
 				onMouseMove={(ev) => handleTippy(ev)}
 				// onMouseOut={hideTippy} // TODO what's the difference b/w leave, out ???
 				onMouseLeave={hideTippy}

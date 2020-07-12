@@ -20,8 +20,8 @@ import NodeInfo from "./screens/Node/NodeInfo/NodeInfo";
 const cache = new InMemoryCache();
 const link = new HttpLink({
 	// document.location.protocol + "//" + document.location.host + "/graphql"
-	uri: "http://localhost:4444/graphql",
-	// uri: "http://localhost:5000/graphql",
+	// uri: "http://localhost:4444/graphql",
+	uri: "http://localhost:5000/graphql",
 });
 
 const client = new ApolloClient({

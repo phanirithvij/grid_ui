@@ -32,9 +32,8 @@ const NodeRow = React.memo(
 					{/* <td colSpan={2}>Larry the Bird</td> */}
 					<td>Node {index + 1}</td>
 					<td>{node.id}</td>
-					<td>{node.platform}</td>
 					<td>
-						<Status state={StatusType.down} />
+						<Status status={node.status} />
 					</td>
 					<td
 						css={css`

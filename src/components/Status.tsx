@@ -9,49 +9,56 @@ import React from "react";
  */
 export enum StatusType {
 	/** All the running nodes */
-	running,
+	UP,
 	/** All the idle but alive nodes */
 	idle,
-	/** All the unresponsive possibly down nodes */
-	unresponsive,
+	/** All the UNAVAILABLE possibly down nodes */
+	UNAVAILABLE,
 	/** All the down nodes */
-	down,
+	DRAINING,
 }
 
-export const LABELS = ["running", "idle", "unresponsive", "down"];
+export const LABELS = ["UP", "idle", "UNAVAILABLE", "DRAINING"];
+
+export const StringTypeToEnum = {
+	[LABELS[0]]: StatusType.UP,
+	[LABELS[1]]: StatusType.idle,
+	[LABELS[2]]: StatusType.UNAVAILABLE,
+	[LABELS[3]]: StatusType.DRAINING,
+};
 
 export const LABEL_COLORS: { [key in StatusType]: string } = {
-	[StatusType.running]: "#3BEC70",
+	[StatusType.UP]: "#3BEC70",
 	[StatusType.idle]: "#E4D400",
-	[StatusType.down]: "#E40000",
-	[StatusType.unresponsive]: "#8b8b8b",
+	[StatusType.DRAINING]: "#E40000",
+	[StatusType.UNAVAILABLE]: "#8b8b8b",
 };
 
 /* export const LABEL_COLORS: { [key in StatusType]: string } = {
 	[StatusType.running]: "#3BEC70",
 	[StatusType.idle]: "#E4D400",
 	[StatusType.down]: "#E40000",
-	[StatusType.unresponsive]: "#8b8b8b",
+	[StatusType.UNAVAILABLE]: "#8b8b8b",
 };
  */
 
-export const Status = React.memo((props: { state: StatusType }) => {
-	let { state } = props;
+export const Status = React.memo((props: { status: string }) => {
+	let { status } = props;
 
 	return (
 		<div className="row" style={{ overflow: "auto" }}>
 			<div className="col-1" style={{ alignSelf: "center" }}>
-				<Tippy content={LABELS[state]}>
+				<Tippy content={status}>
 					<CircleIcon
 						css={css`
-							fill: ${LABEL_COLORS[state]};
+							fill: ${LABEL_COLORS[StringTypeToEnum[status]]};
 							float: left;
 						`}
 					/>
 				</Tippy>
 			</div>
 			<div className="col-6" style={{ float: "left" }}>
-				{LABELS[state]}
+				{status}
 			</div>
 		</div>
 	);

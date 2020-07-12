@@ -1,7 +1,5 @@
 // https://github.com/vercel/next.js/issues/11230#issuecomment-643595034
-/** @jsx jsx */
 
-import { jsx } from "@emotion/core";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ReactComponent as SearchIcon } from "../../assets/icons/search2.svg";
@@ -10,6 +8,7 @@ import seleniumIcon from "../../assets/selenium.svg";
 import "../../css/icons.css";
 import styles from "./NavBar.module.css";
 import searchHighlight from "../../core/Search";
+import "./NavBar.css";
 
 /**
  * 	NavBar component, includes search bar and search functions
@@ -42,7 +41,9 @@ export default function NavBar() {
 
 	return (
 		<React.Fragment>
-			<nav id="sidebar">
+			<nav
+				id="sidebar"
+			>
 				<div id="header-wrapper">
 					<div id="header" style={{ height: "70px" }}>
 						<Link id="logo" to="/home">
@@ -91,11 +92,7 @@ export default function NavBar() {
 							</Link>
 
 							<ul>
-								<li
-									data-nav-id="/node/1/"
-									title="Node 1"
-									className="dd-item "
-								>
+								<li data-nav-id="/node/1/" title="Node 1" className="dd-item">
 									<Link to="/node/1">
 										Node 1<i className="fas fa-check read-icon"></i>
 									</Link>
@@ -148,17 +145,6 @@ export default function NavBar() {
 										>
 											<a href="https://www.selenium.dev/documentation/en/grid/grid_4/components_of_a_grid/">
 												Components
-												<i className="fas fa-check read-icon"></i>
-											</a>
-										</li>
-
-										<li
-											data-nav-id="/grid/grid_4/setting_up_your_own_grid/"
-											title="Setting up your own"
-											className="dd-item "
-										>
-											<a href="https://www.selenium.dev/documentation/en/grid/grid_4/setting_up_your_own_grid/">
-												Setting up your own
 												<i className="fas fa-check read-icon"></i>
 											</a>
 										</li>

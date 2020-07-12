@@ -17,7 +17,7 @@ import { css, jsx as _jsx } from "@emotion/core";
 	2. add a page component
 	3. pagination component which shows active page, next, prev etc..
 */
-const NODES_QUERY = loader("../graphql/nodes.gql");
+const NODES_QUERY = loader("../graphql/grid.gql");
 
 interface GqlDataType {
 	nodes: NodeType[];

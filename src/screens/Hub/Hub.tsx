@@ -12,7 +12,7 @@ import NodeType from "../../models/node";
 import RingDetails from "../../models/rings";
 import "./Hub.css";
 
-const NODES_QUERY = loader("../../graphql/nodes.gql");
+const NODES_QUERY = loader("../../graphql/grid.gql");
 
 interface GqlDataType {
 	nodes: NodeType[];
