@@ -16,7 +16,6 @@ import React from "react";
 import chromeLogo from "../../../assets/chrome.svg";
 import firefoxLogo from "../../../assets/firefox.svg";
 import unknownLogo from "../../../assets/unknown.svg";
-import NodeType from "../../../models/node";
 // import "./Node.css";
 
 // Not using this query for getting a single node

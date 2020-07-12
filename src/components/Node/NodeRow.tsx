@@ -5,7 +5,7 @@ import { loader } from "graphql.macro";
 import React from "react";
 import { ReactComponent as RightIcon } from "../../assets/icons/arrow.svg";
 import NodeType from "../../models/node";
-import { Status, StatusType } from "../Status";
+import { Status } from "../Status";
 
 // Not using this query for getting a single node
 // Because in Nodes.tsx we get all the attrs of all the existing Nodes

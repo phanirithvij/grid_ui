@@ -7,6 +7,12 @@
   - `Unknown [?] Icon by <a href="https://www.flaticon.com/authors/iconixar" title="iconixar">iconixar</a> from <a href="https://www.flaticon.com/" title="Flaticon"> www.flaticon.com</a>`
   - ``
 
+## Keybinds
+
+A note on Keybinds.
+
+Each component registers a specific set of keybindings which will be active only one at a time.
+
 ## Available Scripts
 
 First

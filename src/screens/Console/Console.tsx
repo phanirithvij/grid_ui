@@ -37,7 +37,7 @@ const numPerPage = 8;
 const initialPaginationState: PaginationState = {
 	allNodes: [],
 	activeNodes: [],
-	allActiveNodes: [],
+	filteredNodes: [],
 	currentPageCount: numPerPage,
 	currentPage: 1,
 	filterIndex: -1,
@@ -66,6 +66,7 @@ interface PaginationDispatchArgs {
 	allNodes?: NodeType[];
 	type?: PagenavType;
 	filterIndex?: number;
+	pageCount?: number;
 }
 
 function ringReducer(state: RingDetails, action: { type: string; args?: any }) {
@@ -76,7 +77,7 @@ function ringReducer(state: RingDetails, action: { type: string; args?: any }) {
 				progresses: { ...state.progresses },
 			};
 			newState.progresses[state.count] = {
-				progress: Math.round(Math.random() * 40) + 1,
+				progress: 25,
 				color: LABEL_COLORS[state.count as StatusType],
 			};
 			return newState;
@@ -98,6 +99,7 @@ function paginationReducer(
 	}: { type: PaginationDispatchTypes; args?: PaginationDispatchArgs }
 ) {
 	let newState = { ...state };
+
 	switch (actionType) {
 		case PaginationDispatchTypes.initialiaze:
 			const { allNodes } = args!;
@@ -105,38 +107,70 @@ function paginationReducer(
 				...state,
 				allNodes: allNodes!,
 				activeNodes: allNodes!.slice(0, numPerPage),
-				allActiveNodes: allNodes!.slice(0, numPerPage),
+				filteredNodes: [...allNodes!],
 			};
 			return newState;
+
 		case PaginationDispatchTypes.onPagechange:
 			const { page, pageSize } = args!;
-			newState.activeNodes = newState.allNodes.slice(
+			newState.activeNodes = newState.filteredNodes.slice(
 				(page! - 1) * numPerPage,
 				(page! - 1) * numPerPage + pageSize!
 			);
-			newState.allActiveNodes = [...newState.activeNodes];
 			newState.currentPage = page!;
 			newState.currentPageCount = pageSize!;
 			return newState;
+
 		case PaginationDispatchTypes.filterNodes:
 			let filterIndex = -1;
 			if (!args) {
-				// if filterIndex was not specified implies
-				// re filter on Page change so use the previous filter
-				filterIndex = newState.filterIndex;
+				// if filterIndex was not specified
+				// implies we need to re-filter on Page change
+				// using the previous filter
+				filterIndex = state.filterIndex;
 			} else {
+				// if specified
 				filterIndex = args!.filterIndex!;
 			}
+			// if selected outside (ideally this wouldn't be called in this case)
 			if (filterIndex === -1) return state;
+
+			// if unknown was selected (which should Ideally be not visible)
 			if (filterIndex === LABELS.length) return state;
-			newState.activeNodes = state.allActiveNodes.filter(
+
+			newState.filterIndex = filterIndex;
+
+			// Note: Better way is to query the server for filtering nodes
+			// filtering globally as of now
+			newState.filteredNodes = state.allNodes.filter(
 				(x) => x.status === LABELS[filterIndex]
 			);
-			newState.filterIndex = filterIndex!;
+
+			// set active nodes
+			newState.activeNodes = newState.filteredNodes.slice(
+				(newState.currentPage - 1) * numPerPage,
+				(newState.currentPage - 1) * numPerPage + newState.currentPageCount
+			);
+
+			// get the number of pages
+			let pageCount = Math.floor(newState.filteredNodes.length / numPerPage);
+			let remainingItems = newState.filteredNodes.length % numPerPage;
+			if (remainingItems !== 0) pageCount += 1;
+
+			// if number of pages is greater than current page
+			// jump to the last page
+			if (newState.currentPage > pageCount) newState.currentPage = pageCount;
+
 			return newState;
+
 		case PaginationDispatchTypes.clearFilter:
-			newState.activeNodes = [...state.allActiveNodes];
+			newState.filteredNodes = [...state.allNodes];
 			newState.filterIndex = -1;
+			// set active nodes
+			newState.activeNodes = newState.filteredNodes.slice(
+				(newState.currentPage - 1) * numPerPage,
+				(newState.currentPage - 1) * numPerPage + newState.currentPageCount
+			);
 			return newState;
 		default:
 			throw new Error();
@@ -149,7 +183,10 @@ const paginationCss = css`
 	justify-content: flex-end;
 `;
 
-export default function Console() {
+export default function Console(props: { location: { search: string } }) {
+	// TODO go to page 1 on any filter
+	// or jump to last page if newpage count < old page count on filter
+
 	let [currentIndex] = useState(0);
 
 	let sortbutton = SortButton({ initialState: SelectState.up });
@@ -170,18 +207,22 @@ export default function Console() {
 	};
 
 	const setInitialQLdata = (gridInfo: { grid: { nodes: NodeType[] } }) => {
+		// Initializes the data fetched from graphql
 		paginationDispatch({
 			type: PaginationDispatchTypes.initialiaze,
 			args: { allNodes: gridInfo.grid.nodes },
 		});
 	};
 
+	// details is the state for the ring progress
 	const [details, ringDispatch] = useReducer(ringReducer, initialDetails);
+	// this tracks the state of the pagination and filtering
 	const [paginationState, paginationDispatch] = useReducer(
 		paginationReducer,
 		initialPaginationState
 	);
 
+	// This is a custom icon renderer for the <Pagination />
 	const paginationItemRenderer = (
 		_page: number,
 		type: string,
@@ -211,6 +252,7 @@ export default function Console() {
 	// re run the previous search after page changes
 	useEffect(window.rerunSearch, [paginationState]);
 
+	// A callback for the child RingSystem
 	const ringFilter = (filterIndex: number) => {
 		if (filterIndex !== -1) {
 			// update the state if index changes
@@ -228,7 +270,7 @@ export default function Console() {
 		}
 	};
 
-	// On mount
+	// On mount registers keybinds
 	useEffect(() => {
 		// register keybinds
 		// [N, n, ->] => Next page
@@ -253,10 +295,29 @@ export default function Console() {
 			btn.click();
 		});
 
+		// Unbind on unmount
 		return () => {
 			keyboardJS.reset();
 		};
 	});
+
+	var params = new URLSearchParams(props.location.search);
+	if (params.get("filter") != null) {
+		// TODO set initial filter to be filter
+	}
+
+	let PaginationWidget = (
+		<Pagination
+			css={paginationCss}
+			itemRender={paginationItemRenderer}
+			onChange={onPageChange}
+			current={paginationState.currentPage}
+			defaultPageSize={numPerPage}
+			total={paginationState.filteredNodes.length}
+			showQuickJumper={true}
+			locale={localeInfo}
+		/>
+	);
 
 	return (
 		<section id="body">
@@ -290,16 +351,7 @@ export default function Console() {
 										width: 50vw;
 									`}
 								>
-									<Pagination
-										css={paginationCss}
-										itemRender={paginationItemRenderer}
-										onChange={onPageChange}
-										current={paginationState.currentPage}
-										defaultPageSize={numPerPage}
-										total={paginationState.allNodes.length}
-										showQuickJumper={true}
-										locale={localeInfo}
-									/>
+									{PaginationWidget}
 									<div>
 										<table className="table table-hover">
 											<thead>
@@ -350,16 +402,7 @@ export default function Console() {
 											</tbody>
 										</table>
 									</div>
-									<Pagination
-										css={paginationCss}
-										itemRender={paginationItemRenderer}
-										onChange={onPageChange}
-										current={paginationState.currentPage}
-										defaultPageSize={numPerPage}
-										total={paginationState.allNodes.length}
-										showQuickJumper={true}
-										locale={localeInfo}
-									/>
+									{PaginationWidget}
 								</div>
 							</React.Fragment>
 						);

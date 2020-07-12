@@ -39,6 +39,7 @@ const Ring = React.memo((props: RingProps) => {
 			width={radius * 2}
 			css={css`
 				position: absolute;
+				z-index: 100;
 				.progress-ring__circle {
 					transition: 0.35s stroke-dashoffset, 0.35s transform;
 					// -90deg axis compensation

@@ -6,6 +6,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { followCursor } from "tippy.js";
 import "tippy.js/dist/tippy.css"; // required for styling tippy
 import { ReactComponent as CircleIcon } from "../../assets/icons/circle.svg";
+import { ReactComponent as ClearIcon } from "../../assets/icons/clear.svg";
 import RingDetails from "../../models/rings";
 import { LABELS } from "../Status";
 import Ring from "./Ring/Ring";
@@ -82,15 +83,13 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 		parentCB(`${progresses[index].progress}% ${LABELS[index]}`);
 	}, [index, parentCB, progresses, totalProgress]);
 
-	{
-		// To calculate the ring offset positions
-		Object.values(progresses).forEach((x) => {
-			totalProgress += x.progress;
-			offsets.push(totalProgress);
-		});
-		// Add one 100 at the end for the logic in the loop in ringIndexFromCoords
-		offsets.push(100);
-	}
+	// To calculate the ring offset positions
+	Object.values(progresses).forEach((x) => {
+		totalProgress += x.progress;
+		offsets.push(totalProgress);
+	});
+	// Add one 100 at the end for the logic in the loop in ringIndexFromCoords
+	offsets.push(100);
 
 	/**
 	 *
@@ -148,6 +147,10 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 		const [x2, y2] = [evt.nativeEvent.offsetX, evt.nativeEvent.offsetY];
 		const currentFilterIndex = ringIndexFromCoords(x2, y2);
 
+		saveFilterState(currentFilterIndex);
+	};
+
+	const saveFilterState = (currentFilterIndex = -1) => {
 		if (filterIndex !== currentFilterIndex) {
 			setFilterIndex(currentFilterIndex);
 		}
@@ -261,7 +264,18 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 					width: 60%;
 				`}
 			>
-				<div>
+				<div onClick={() => saveFilterState(-1)}>
+					{/* Display only when there's an active filter */}
+					{filterIndex !== -1 && (
+						<Tippy content={"clear filter"} placement="right">
+							<ClearIcon
+								css={css`
+									z-index: 0;
+									transform: translate(-14px, 0px);
+								`}
+							/>
+						</Tippy>
+					)}{" "}
 					{(() => {
 						if (count > 7) count = 7;
 					})()}
