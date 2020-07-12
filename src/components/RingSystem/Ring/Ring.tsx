@@ -32,6 +32,12 @@ const Ring = React.memo((props: RingProps) => {
 	const strokeDashoffset = circumference - (progress / 100) * circumference;
 	const offsetAngle = (360 * offsetPercent) / 100;
 
+	/* https://stackoverflow.com/a/58175279/8608146 */
+	const highlightCSS = css`
+		filter: drop-shadow(2px 2px 0px #111) drop-shadow(-1px 1px 0px #111)
+			drop-shadow(1px -1px 0px #111) drop-shadow(-1px -1px 0px #111);
+	`;
+
 	return (
 		<svg
 			id={id}
@@ -39,6 +45,7 @@ const Ring = React.memo((props: RingProps) => {
 			width={radius * 2}
 			css={css`
 				position: absolute;
+				${highlight ? highlightCSS : ""}
 				z-index: 100;
 				.progress-ring__circle {
 					transition: 0.35s stroke-dashoffset, 0.35s transform;
@@ -52,7 +59,7 @@ const Ring = React.memo((props: RingProps) => {
 				className="progress-ring__circle"
 				stroke={color}
 				fill="transparent"
-				strokeWidth={highlight ? stroke + 5 : stroke}
+				strokeWidth={highlight ? stroke + 4 : stroke}
 				strokeDasharray={circumference + " " + circumference}
 				style={{ strokeDashoffset }}
 				r={normalizedRadius}

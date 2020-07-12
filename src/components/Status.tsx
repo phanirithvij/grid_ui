@@ -12,24 +12,26 @@ import React from "react";
 export enum StatusType {
 	/** All the running nodes */
 	UP,
-	/** All the idle but alive nodes */
-	IDLE,
 	/** All the UNAVAILABLE possibly down nodes */
 	UNAVAILABLE,
 	/** All the down nodes */
 	DRAINING,
+	/** All the idle but alive nodes */
+	IDLE,
 }
 
 /** A set of states that the node can be in */
-export const LABELS = ["UP", "IDLE", "UNAVAILABLE", "DRAINING"];
+export const LABELS = ["UP", "UNAVAILABLE", "DRAINING", "IDLE"];
 
 /** Maps string to StatusType Enum */
 export const StringTypeToEnum = {
 	[LABELS[0]]: StatusType.UP,
-	[LABELS[1]]: StatusType.IDLE,
-	[LABELS[2]]: StatusType.UNAVAILABLE,
-	[LABELS[3]]: StatusType.DRAINING,
+	[LABELS[1]]: StatusType.UNAVAILABLE,
+	[LABELS[2]]: StatusType.DRAINING,
+	[LABELS[3]]: StatusType.IDLE,
 };
+
+// TODO make unknown idle
 
 /** The label colors
  *
@@ -49,8 +51,14 @@ export const Status = React.memo(
 		let { status, selected = -1 } = props;
 
 		return (
-			<div style={{ overflow: "auto" }}>
-				<div style={{ alignSelf: "center" }}>
+			<div
+				css={css`
+					display: flex;
+					justify-content: start;
+					align-items: center;
+				`}
+			>
+				<div>
 					<Tippy content={status}>
 						<CircleIcon
 							css={css`
@@ -62,7 +70,7 @@ export const Status = React.memo(
 						/>
 					</Tippy>
 				</div>
-				<div>{selected !== -1 && <i>({LABELS[selected]})</i>}</div>
+				<div>{selected !== -1 && <i> ({LABELS[selected]})</i>}</div>
 			</div>
 		);
 	}

@@ -1,7 +1,8 @@
+import React from "react";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { ApolloClient } from "apollo-client";
 import { HttpLink } from "apollo-link-http";
-import React from "react";
+import Modal from "react-modal";
 import { ApolloProvider } from "react-apollo";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
@@ -35,6 +36,9 @@ declare global {
 		pbar: any;
 	}
 }
+
+
+Modal.setAppElement("#root");
 
 function App() {
 	return (

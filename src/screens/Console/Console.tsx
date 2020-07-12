@@ -5,13 +5,13 @@ import keyboardJS from "keyboardjs";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
 import localeInfo from "rc-pagination/lib/locale/en_US";
-import React, { useCallback, useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer, useRef, useState } from "react";
 import { Query, QueryResult } from "react-apollo";
 import { ReactComponent as SortIcon2 } from "../../assets/icons/sorticon-plain.svg";
 import NodeRow from "../../components/Node/NodeRow";
-import RingSystem from "../../components/RingSystem/RingSystem";
+import RingSystem, { RingRef } from "../../components/RingSystem/RingSystem";
 import SortButton, { SelectState } from "../../components/SortButton";
-import { LABEL_COLORS, StatusType, LABELS } from "../../components/Status";
+import { LABELS, LABEL_COLORS, StatusType } from "../../components/Status";
 import TopBar from "../../components/TopBar";
 import "../../css/common.css";
 import NodeType from "../../models/node";
@@ -23,6 +23,10 @@ import "./Console.css";
  * TODO
 	1. add a pagination variable to the query
 	2. pagination component which queries based on page from server
+	3. Write a RingController class which allows calling `filter(tag);`
+	4. Sort entries in tables by columns
+	5. Search with filters id, status
+	6. Toggle status filter selection on arc click
 */
 
 const NODES_QUERY = loader("../../graphql/grid.gql");
@@ -60,6 +64,13 @@ enum PagenavType {
 	prev = "prev",
 }
 
+export const ConsoleKeyCombinations = {
+	nextPage: { keys: ["n", "N", "right"], desc: "Next page in table" },
+	prevPage: { keys: ["p", "P", "left"], desc: "Previous page in table" },
+	esc: { keys: ["esc"], desc: "Clear selected filter" },
+	show: { keys: ["ctrl + /"], desc: "Show/Hide this page" },
+};
+
 interface PaginationDispatchArgs {
 	page?: number;
 	pageSize?: number;
@@ -69,16 +80,21 @@ interface PaginationDispatchArgs {
 	pageCount?: number;
 }
 
-function ringReducer(state: RingDetails, action: { type: string; args?: any }) {
+function ringReducer(
+	state: RingDetails,
+	action: { type: string; args: { progress: number; currentIndex: number } }
+) {
 	switch (action.type) {
 		case "addRing":
-			const newState = {
-				count: state.count + 1,
+			const currentIndex = action.args.currentIndex;
+			const newState: RingDetails = {
+				...state,
+				count: currentIndex + 1,
 				progresses: { ...state.progresses },
 			};
-			newState.progresses[state.count] = {
-				progress: 25,
-				color: LABEL_COLORS[state.count as StatusType],
+			newState.progresses[currentIndex] = {
+				progress: action.args.progress,
+				color: LABEL_COLORS[currentIndex as StatusType],
 			};
 			return newState;
 		default:
@@ -122,6 +138,7 @@ function paginationReducer(
 			return newState;
 
 		case PaginationDispatchTypes.filterNodes:
+			// TODO simplify this logic (?)
 			let filterIndex = -1;
 			if (!args) {
 				// if filterIndex was not specified
@@ -152,11 +169,18 @@ function paginationReducer(
 			if (remainingItems !== 0) pageCount += 1;
 
 			// if number of pages is greater than current page
-			// jump to the last page
+			// jump to last page i.e. if newpage count < old page count on filter
 			if (newState.currentPage > pageCount) newState.currentPage = pageCount;
 
-			// set active nodes
-			// Must set these at the end
+			// if some filter has no nodes reset to page 1 on change
+			// Ideally this won't happen as we'll not be able to click
+			// on the zero ring
+			if (newState.currentPage <= 0) newState.currentPage = 1;
+
+			// TODO if we need to show some small arc for zero progress rings
+
+			// set active visible nodes
+			// Must set these at the end after reseting the page
 			newState.activeNodes = newState.filteredNodes.slice(
 				(newState.currentPage - 1) * numPerPage,
 				(newState.currentPage - 1) * numPerPage + newState.currentPageCount
@@ -178,24 +202,19 @@ function paginationReducer(
 	}
 }
 
-// Align to the right
-const paginationCss = css`
-	display: flex;
-	justify-content: flex-end;
-`;
+export default function Console(props: {
+	location: { search: string };
+	history: any;
+}) {
+	// Getting a reference to the ringsystem functions
+	const ringRef = useRef<RingRef>(null);
 
-export default function Console(props: { location: { search: string } }) {
-	// TODO go to page 1 on any filter
-	// or jump to last page if newpage count < old page count on filter
-
-	let [currentIndex] = useState(0);
-
+	// TODO sort by column
 	let sortbutton = SortButton({ initialState: SelectState.up });
-	let [gridInfo, setGridInfo] = useState();
 
-	const addRing = useCallback(() => {
-		ringDispatch({ type: "addRing", args: currentIndex });
-	}, [currentIndex]);
+	const addRing = (progress: number, index: number) => {
+		ringDispatch({ type: "addRing", args: { currentIndex: index, progress } });
+	};
 
 	const onPageChange = (page: number, pageSize: number) => {
 		paginationDispatch({
@@ -212,6 +231,24 @@ export default function Console(props: { location: { search: string } }) {
 		paginationDispatch({
 			type: PaginationDispatchTypes.initialiaze,
 			args: { allNodes: gridInfo.grid.nodes },
+		});
+
+		const countHash: {
+			[x: string]: number;
+		} = {};
+
+		gridInfo.grid.nodes.forEach((node: NodeType) => {
+			if (countHash[node.status] === undefined) countHash[node.status] = 0;
+
+			countHash[node.status] += 1;
+		});
+
+		console.log(countHash, gridInfo.grid.nodes);
+
+		const sum = Object.values(countHash).reduce((a, b) => a + b, 0);
+		// Initialize the 4 rings
+		LABELS.forEach((l, i) => {
+			addRing(Math.round((countHash[l] / sum) * 100), i);
 		});
 	};
 
@@ -247,24 +284,21 @@ export default function Console(props: { location: { search: string } }) {
 		return element;
 	};
 
-	// Initialize the 4 rings
-	useEffect(() => LABELS.forEach((_) => addRing()), [addRing]);
-
 	// re run the previous search after page changes
 	useEffect(window.rerunSearch, [paginationState]);
 
 	// A callback for the child RingSystem
 	const ringFilter = (filterIndex: number) => {
+		// TODO keep track of selected pages for all states
+		// And restore on that state
+		// Not hard to implement
 		if (filterIndex !== -1) {
 			// update the state if index changes
-			console.log("Clicked on ring numbered", filterIndex);
 			paginationDispatch({
 				type: PaginationDispatchTypes.filterNodes,
 				args: { filterIndex },
 			});
 		} else {
-			// TODO clear filter
-			console.log("clicked outside mate -> will clear filter");
 			paginationDispatch({
 				type: PaginationDispatchTypes.clearFilter,
 			});
@@ -276,24 +310,32 @@ export default function Console(props: { location: { search: string } }) {
 		// register keybinds
 		// [N, n, ->] => Next page
 		// [P, p, <-] => Previous page
+		// ESC => clear filter
 
 		// Note: using keyboardJS for handling key combinations
 		// Currently no key combinations are registered
 
 		// TODO add ctrl + / for showing keyboard shortcuts modal
+		// TODO auto generate shortcuts modal
 		// TODO when searching keybinds should be paused
-		keyboardJS.bind(["n", "N", "right"], () => {
+		keyboardJS.bind(ConsoleKeyCombinations.nextPage.keys, () => {
 			let btn = document.querySelector(
 				`#${PagenavType.next}-page`
 			) as HTMLButtonElement;
 			btn.click();
 		});
 
-		keyboardJS.bind(["p", "P", "left"], () => {
+		keyboardJS.bind(ConsoleKeyCombinations.prevPage.keys, () => {
 			let btn = document.querySelector(
 				`#${PagenavType.prev}-page`
 			) as HTMLButtonElement;
 			btn.click();
+		});
+
+		keyboardJS.bind(ConsoleKeyCombinations.esc.keys, () => {
+			// Un select most recent selected component
+			// eg. remove filter
+			ringRef.current?.saveFilterState();
 		});
 
 		// Unbind on unmount
@@ -305,7 +347,14 @@ export default function Console(props: { location: { search: string } }) {
 	var params = new URLSearchParams(props.location.search);
 	if (params.get("filter") != null) {
 		// TODO set initial filter to be filter
+		props.history.push(params.get("filter"));
 	}
+
+	// Align to the right
+	const paginationCss = css`
+		display: flex;
+		justify-content: flex-end;
+	`;
 
 	let PaginationWidget = (
 		<Pagination
@@ -316,6 +365,7 @@ export default function Console(props: { location: { search: string } }) {
 			defaultPageSize={numPerPage}
 			total={paginationState.filteredNodes.length}
 			showQuickJumper={true}
+			showLessItems={true}
 			locale={localeInfo}
 		/>
 	);
@@ -346,7 +396,11 @@ export default function Console(props: { location: { search: string } }) {
 						}
 						return (
 							<React.Fragment>
-								<RingSystem details={details} ringFilterCallback={ringFilter} />
+								<RingSystem
+									ref={ringRef}
+									details={details}
+									ringFilterCallback={ringFilter}
+								/>
 								<div
 									css={css`
 										width: 50vw;
@@ -360,7 +414,7 @@ export default function Console(props: { location: { search: string } }) {
 													<th
 														scope="col"
 														// TODO make this call a reset sortfilter function
-														onClick={addRing}
+														// onClick={addRing}
 														css={css`
 															cursor: pointer;
 														`}
