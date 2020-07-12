@@ -146,12 +146,6 @@ function paginationReducer(
 				(x) => x.status === LABELS[filterIndex]
 			);
 
-			// set active nodes
-			newState.activeNodes = newState.filteredNodes.slice(
-				(newState.currentPage - 1) * numPerPage,
-				(newState.currentPage - 1) * numPerPage + newState.currentPageCount
-			);
-
 			// get the number of pages
 			let pageCount = Math.floor(newState.filteredNodes.length / numPerPage);
 			let remainingItems = newState.filteredNodes.length % numPerPage;
@@ -160,6 +154,12 @@ function paginationReducer(
 			// if number of pages is greater than current page
 			// jump to the last page
 			if (newState.currentPage > pageCount) newState.currentPage = pageCount;
+
+			// set active nodes
+			newState.activeNodes = newState.filteredNodes.slice(
+				(newState.currentPage - 1) * numPerPage,
+				(newState.currentPage - 1) * numPerPage + newState.currentPageCount
+			);
 
 			return newState;
 
@@ -378,7 +378,12 @@ export default function Console(props: { location: { search: string } }) {
 													<th scope="col">
 														ID <SortIcon2 />
 													</th>
-													<th scope="col">status</th>
+													<th scope="col">
+														status{" "}
+														{paginationState.filterIndex !== -1 && (
+															<i>({LABELS[paginationState.filterIndex]})</i>
+														)}
+													</th>
 													<th scope="col"></th>
 												</tr>
 											</thead>
@@ -394,6 +399,7 @@ export default function Console(props: { location: { search: string } }) {
 													<NodeRow
 														node={n}
 														key={n.id}
+														selected={paginationState.filterIndex}
 														index={
 															(paginationState.currentPage - 1) * numPerPage + i
 														}

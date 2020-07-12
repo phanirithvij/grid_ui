@@ -6,7 +6,7 @@ import React from "react";
 
 /**
  * StatusType enum which is used along with the LABELS
- * 
+ *
  * TODO think of a way to use just this instead of having this and LABELS
  */
 export enum StatusType {
@@ -32,11 +32,11 @@ export const StringTypeToEnum = {
 };
 
 /** The label colors
- * 
+ *
  * TODO create a separate css file and a config.js file which allows
  * modifying these values where we can select whether to use
  * `config.css` or `config.json(?)` for setting these colors
-*/
+ */
 export const LABEL_COLORS: { [key in StatusType]: string } = {
 	[StatusType.UP]: "#3BEC70",
 	[StatusType.IDLE]: "#E4D400",
@@ -44,23 +44,26 @@ export const LABEL_COLORS: { [key in StatusType]: string } = {
 	[StatusType.UNAVAILABLE]: "#8b8b8b",
 };
 
-export const Status = React.memo((props: { status: string }) => {
-	let { status } = props;
+export const Status = React.memo(
+	(props: { status: string; selected?: number }) => {
+		let { status, selected = -1 } = props;
 
-	return (
-		<div style={{ overflow: "auto" }}>
-			<div style={{ alignSelf: "center" }}>
-				<Tippy content={status}>
-					<CircleIcon
-						css={css`
-							fill: ${LABEL_COLORS[StringTypeToEnum[status]]};
-							float: left;
-						`}
-						width={15}
-						height={15}
-					/>
-				</Tippy>
+		return (
+			<div style={{ overflow: "auto" }}>
+				<div style={{ alignSelf: "center" }}>
+					<Tippy content={status}>
+						<CircleIcon
+							css={css`
+								fill: ${LABEL_COLORS[StringTypeToEnum[status]]};
+								float: left;
+							`}
+							width={15}
+							height={15}
+						/>
+					</Tippy>
+				</div>
+				<div>{selected !== -1 && <i>({LABELS[selected]})</i>}</div>
 			</div>
-		</div>
-	);
-});
+		);
+	}
+);
