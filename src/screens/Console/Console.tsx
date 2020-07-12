@@ -156,6 +156,7 @@ function paginationReducer(
 			if (newState.currentPage > pageCount) newState.currentPage = pageCount;
 
 			// set active nodes
+			// Must set these at the end
 			newState.activeNodes = newState.filteredNodes.slice(
 				(newState.currentPage - 1) * numPerPage,
 				(newState.currentPage - 1) * numPerPage + newState.currentPageCount
