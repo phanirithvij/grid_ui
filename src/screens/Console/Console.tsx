@@ -11,7 +11,7 @@ import { ReactComponent as SortIcon2 } from "../../assets/icons/sorticon-plain.s
 import NodeRow from "../../components/Node/NodeRow";
 import RingSystem from "../../components/RingSystem/RingSystem";
 import SortButton, { SelectState } from "../../components/SortButton";
-import { LABELS, LABEL_COLORS, StatusType } from "../../components/Status";
+import { LABEL_COLORS, StatusType, LABELS } from "../../components/Status";
 import TopBar from "../../components/TopBar";
 import "../../css/common.css";
 import NodeType from "../../models/node";
@@ -37,8 +37,10 @@ const numPerPage = 8;
 const initialPaginationState: PaginationState = {
 	allNodes: [],
 	activeNodes: [],
+	allActiveNodes: [],
 	currentPageCount: numPerPage,
 	currentPage: 1,
+	filterIndex: -1,
 };
 
 const initialDetails: RingDetails = {
@@ -49,6 +51,8 @@ const initialDetails: RingDetails = {
 enum PaginationDispatchTypes {
 	onPagechange,
 	initialiaze,
+	filterNodes,
+	clearFilter,
 }
 
 enum PagenavType {
@@ -61,6 +65,7 @@ interface PaginationDispatchArgs {
 	pageSize?: number;
 	allNodes?: NodeType[];
 	type?: PagenavType;
+	filterIndex?: number;
 }
 
 function ringReducer(state: RingDetails, action: { type: string; args?: any }) {
@@ -100,6 +105,7 @@ function paginationReducer(
 				...state,
 				allNodes: allNodes!,
 				activeNodes: allNodes!.slice(0, numPerPage),
+				allActiveNodes: allNodes!.slice(0, numPerPage),
 			};
 			return newState;
 		case PaginationDispatchTypes.onPagechange:
@@ -108,8 +114,29 @@ function paginationReducer(
 				(page! - 1) * numPerPage,
 				(page! - 1) * numPerPage + pageSize!
 			);
+			newState.allActiveNodes = [...newState.activeNodes];
 			newState.currentPage = page!;
 			newState.currentPageCount = pageSize!;
+			return newState;
+		case PaginationDispatchTypes.filterNodes:
+			let filterIndex = -1;
+			if (!args) {
+				// if filterIndex was not specified implies
+				// re filter on Page change so use the previous filter
+				filterIndex = newState.filterIndex;
+			} else {
+				filterIndex = args!.filterIndex!;
+			}
+			if (filterIndex === -1) return state;
+			if (filterIndex === LABELS.length) return state;
+			newState.activeNodes = state.allActiveNodes.filter(
+				(x) => x.status === LABELS[filterIndex]
+			);
+			newState.filterIndex = filterIndex!;
+			return newState;
+		case PaginationDispatchTypes.clearFilter:
+			newState.activeNodes = [...state.allActiveNodes];
+			newState.filterIndex = -1;
 			return newState;
 		default:
 			throw new Error();
@@ -136,6 +163,9 @@ export default function Console() {
 		paginationDispatch({
 			type: PaginationDispatchTypes.onPagechange,
 			args: { page, pageSize },
+		});
+		paginationDispatch({
+			type: PaginationDispatchTypes.filterNodes,
 		});
 	};
 
@@ -181,16 +211,34 @@ export default function Console() {
 	// re run the previous search after page changes
 	useEffect(window.rerunSearch, [paginationState]);
 
-	// register keybinds
-	// [N, n, ->] => Next page
-	// [P, p, <-] => Previous page
+	const ringFilter = (filterIndex: number) => {
+		if (filterIndex !== -1) {
+			// update the state if index changes
+			console.log("Clicked on ring numbered", filterIndex);
+			paginationDispatch({
+				type: PaginationDispatchTypes.filterNodes,
+				args: { filterIndex },
+			});
+		} else {
+			// TODO clear filter
+			console.log("clicked outside mate -> will clear filter");
+			paginationDispatch({
+				type: PaginationDispatchTypes.clearFilter,
+			});
+		}
+	};
 
-	// TODO when searching keybinds should be paused
-
+	// On mount
 	useEffect(() => {
-		// Note using keyboardJS for handling key combinations
-		// Currently none is needed
+		// register keybinds
+		// [N, n, ->] => Next page
+		// [P, p, <-] => Previous page
+
+		// Note: using keyboardJS for handling key combinations
+		// Currently no key combinations are registered
+
 		// TODO add ctrl + / for showing keyboard shortcuts modal
+		// TODO when searching keybinds should be paused
 		keyboardJS.bind(["n", "N", "right"], () => {
 			let btn = document.querySelector(
 				`#${PagenavType.next}-page`
@@ -227,7 +275,7 @@ export default function Console() {
 					{(result: QueryResult<GqlDataType>) => {
 						let { loading, error } = result;
 
-						// TODO shimmer (?)
+						// TODO shimmer or something more informative (?)
 						if (loading) return <h4>fetching...</h4>;
 						if (error) {
 							console.error(error);
@@ -236,7 +284,7 @@ export default function Console() {
 						}
 						return (
 							<React.Fragment>
-								<RingSystem details={details} />
+								<RingSystem details={details} ringFilterCallback={ringFilter} />
 								<div
 									css={css`
 										width: 50vw;

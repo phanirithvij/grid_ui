@@ -25,6 +25,7 @@ const NodeRow = React.memo(
 					css={css`
 						td {
 							border: 0 !important;
+							font-family: monospace;
 						}
 					`}
 				>

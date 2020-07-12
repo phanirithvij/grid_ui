@@ -6,6 +6,7 @@ import React from "react";
 interface RingProps {
 	radius: number;
 	stroke: number;
+	highlight?: boolean;
 	id: string;
 	color: string;
 	progress: number;
@@ -22,6 +23,7 @@ const Ring = React.memo((props: RingProps) => {
 		offset: offsetPercent,
 		color,
 		id,
+		highlight = false,
 		/* parentCB */
 	} = props;
 
@@ -49,7 +51,7 @@ const Ring = React.memo((props: RingProps) => {
 				className="progress-ring__circle"
 				stroke={color}
 				fill="transparent"
-				strokeWidth={stroke}
+				strokeWidth={highlight ? stroke + 5 : stroke}
 				strokeDasharray={circumference + " " + circumference}
 				style={{ strokeDashoffset }}
 				r={normalizedRadius}

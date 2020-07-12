@@ -18,7 +18,7 @@ export enum StatusType {
 	DRAINING,
 }
 
-export const LABELS = ["UP", "idle", "UNAVAILABLE", "DRAINING"];
+export const LABELS = ["UP", "IDLE", "UNAVAILABLE", "DRAINING"];
 
 export const StringTypeToEnum = {
 	[LABELS[0]]: StatusType.UP,

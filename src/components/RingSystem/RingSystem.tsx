@@ -22,6 +22,9 @@ interface RingSystemProps {
 	/** `stroke` Stroke width in pixels*/
 	stroke?: number;
 	children?: JSX.Element;
+
+	/**  A callback which will be called when one of the rings is clicked */
+	ringFilterCallback?: Function;
 }
 
 /**
@@ -39,6 +42,7 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 		// Look at all possible variables that can be used in the center
 		textFormat = ":freePercent:% free",
 		children,
+		ringFilterCallback = () => {},
 	} = props;
 	let normalizedRadius = radius - stroke;
 
@@ -78,19 +82,21 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 		parentCB(`${progresses[index].progress}% ${LABELS[index]}`);
 	}, [index, parentCB, progresses, totalProgress]);
 
-	// To calculate the ring offset positions
-	Object.values(progresses).forEach((x) => {
-		totalProgress += x.progress;
-		offsets.push(totalProgress);
-	});
-	// Add one 100 at the end for the logic in the loop in ringIndexFromCoords
-	offsets.push(100);
+	{
+		// To calculate the ring offset positions
+		Object.values(progresses).forEach((x) => {
+			totalProgress += x.progress;
+			offsets.push(totalProgress);
+		});
+		// Add one 100 at the end for the logic in the loop in ringIndexFromCoords
+		offsets.push(100);
+	}
 
 	/**
-	 * 
+	 *
 	 * @param x2 X coord of the mouse relative to parent
 	 * @param y2 Y coord of the mouse relative to parent
-	 * 
+	 *
 	 * Returns the index of the ring which exists at the given coords
 	 * Returns -1 if outside the ring arc area
 	 */
@@ -133,24 +139,19 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 	};
 
 	/**
-	 * 
+	 *
 	 * @param evt React onclick mouse event
-	 * 
+	 *
 	 * Handles the filtering of the shown stuff based on the clicked index
 	 */
 	const handleClick = (evt: React.MouseEvent<HTMLElement, MouseEvent>) => {
 		const [x2, y2] = [evt.nativeEvent.offsetX, evt.nativeEvent.offsetY];
 		const currentFilterIndex = ringIndexFromCoords(x2, y2);
 
-		if (currentFilterIndex !== -1) {
-			// update the state if index changes
-			if (filterIndex !== currentFilterIndex) {
-				setFilterIndex(currentFilterIndex);
-			}
-			console.log("Clicked on ring numbered", currentFilterIndex);
-		} else {
-			console.log("clicked outside mate -> will clear filter");
+		if (filterIndex !== currentFilterIndex) {
+			setFilterIndex(currentFilterIndex);
 		}
+		ringFilterCallback(currentFilterIndex);
 	};
 
 	// A method to handle the tippy based on the mouseevent
@@ -234,6 +235,7 @@ const RingSystem = React.memo((props: RingSystemProps) => {
 					<Ring
 						key={i}
 						id={`ring-${i}`}
+						highlight={filterIndex === i}
 						color={progresses[i].color}
 						offset={offsets[i]}
 						radius={radius}
