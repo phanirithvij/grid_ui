@@ -2,6 +2,8 @@
 
 import { css, jsx as _jsx } from "@emotion/core";
 import React from "react";
+import Tippy from "@tippyjs/react";
+import { FocusTriggerActions } from "../../../screens/Console/Console.keybinds";
 
 interface RingProps {
 	radius: number;
@@ -12,6 +14,7 @@ interface RingProps {
 	progress: number;
 	offset: number;
 	parentCB: Function;
+	label?: string;
 }
 
 // Ring is an svg cicular ring implementation
@@ -24,6 +27,7 @@ const Ring = React.memo((props: RingProps) => {
 		color,
 		id,
 		highlight = false,
+		label,
 		/* parentCB */
 	} = props;
 
@@ -34,9 +38,26 @@ const Ring = React.memo((props: RingProps) => {
 
 	/* https://stackoverflow.com/a/58175279/8608146 */
 	const highlightCSS = css`
-		filter: drop-shadow(2px 2px 0px #111) drop-shadow(-1px 1px 0px #111)
-			drop-shadow(1px -1px 0px #111) drop-shadow(-1px -1px 0px #111);
+		// filter: drop-shadow(2px 2px 0px #111) drop-shadow(-1px 1px 0px #111)
+		// 	drop-shadow(1px -1px 0px #111) drop-shadow(-1px -1px 0px #111);
 	`;
+
+	const circle = (
+		<circle
+			tabIndex={label ? 0 : undefined}
+			data-trigger-action={FocusTriggerActions.filterSelected}
+			data-trigger-filter-label={label}
+			className="progress-ring__circle"
+			stroke={color}
+			fill="transparent"
+			strokeWidth={highlight ? stroke + 4 : stroke}
+			strokeDasharray={circumference + " " + circumference}
+			style={{ strokeDashoffset }}
+			r={normalizedRadius}
+			cx={radius}
+			cy={radius}
+		/>
+	);
 
 	return (
 		<svg
@@ -55,17 +76,13 @@ const Ring = React.memo((props: RingProps) => {
 				}
 			`}
 		>
-			<circle
-				className="progress-ring__circle"
-				stroke={color}
-				fill="transparent"
-				strokeWidth={highlight ? stroke + 4 : stroke}
-				strokeDasharray={circumference + " " + circumference}
-				style={{ strokeDashoffset }}
-				r={normalizedRadius}
-				cx={radius}
-				cy={radius}
-			/>
+			{label ? (
+				<Tippy content={label} trigger="focus">
+					{circle}
+				</Tippy>
+			) : (
+				circle
+			)}
 		</svg>
 	);
 });

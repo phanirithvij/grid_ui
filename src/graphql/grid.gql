@@ -1,17 +1,14 @@
 query {
-  grid {
-    uri
-    nodes {
-      id
-      uri
-      status
-      maxSession
-      capabilities {
-        browserName
-        slots
-      }
-    }
-    totalSlots
-    usedSlots
-  }
+	grid {
+		uri
+		nodes {
+			id
+			uri
+			status
+			maxSession
+			capabilities
+		}
+		totalSlots
+		usedSlots
+	}
 }

@@ -70,7 +70,11 @@ export const Status = React.memo(
 						/>
 					</Tippy>
 				</div>
-				<div>{selected !== -1 && <i> ({LABELS[selected]})</i>}</div>
+				{selected !== -1 && (
+					<div>
+						<i>({LABELS[selected]})</i>
+					</div>
+				)}
 			</div>
 		);
 	}

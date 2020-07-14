@@ -156,9 +156,11 @@ const RingSystem = React.memo(
 			saveFilterState(currentFilterIndex);
 		};
 
+		// To expose child methods to parent
 		React.useImperativeHandle(ref, () => ({
 			saveFilterState,
 		}));
+
 		const saveFilterState = (currentFilterIndex = -1) => {
 			if (filterIndex !== currentFilterIndex) {
 				setFilterIndex(currentFilterIndex);
@@ -195,7 +197,7 @@ const RingSystem = React.memo(
 			Object.keys(progresses).forEach((x) => {
 				const idx = parseInt(x);
 				progresses[idx].progress /= totalProgress;
-				progresses[idx].progress = Math.floor(progresses[idx].progress * 100);
+				progresses[idx].progress = Math.round(progresses[idx].progress * 100);
 			});
 			totalProgress = 100;
 		}
@@ -246,6 +248,7 @@ const RingSystem = React.memo(
 					{[...Array(count)].map((_, i) => (
 						<Ring
 							key={i}
+							label={LABELS[i]}
 							id={`ring-${i}`}
 							highlight={filterIndex === i}
 							color={progresses[i].color}

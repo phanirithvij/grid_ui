@@ -1,11 +1,10 @@
 /** @jsx _jsx*/
 import { css, jsx as _jsx } from "@emotion/core";
 import { loader } from "graphql.macro";
-import keyboardJS from "keyboardjs";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
 import localeInfo from "rc-pagination/lib/locale/en_US";
-import React, { useEffect, useReducer, useRef, useState } from "react";
+import React, { useEffect, useReducer, useRef } from "react";
 import { Query, QueryResult } from "react-apollo";
 import { ReactComponent as SortIcon2 } from "../../assets/icons/sorticon-plain.svg";
 import NodeRow from "../../components/Node/NodeRow";
@@ -18,6 +17,11 @@ import NodeType from "../../models/node";
 import PaginationState from "../../models/pagination";
 import RingDetails from "../../models/rings";
 import "./Console.css";
+import {
+	ConsoleKeyCombinations,
+	unBindKeys,
+	initializeBinds,
+} from "./Console.keybinds";
 
 /**
  * TODO
@@ -27,6 +31,12 @@ import "./Console.css";
 	4. Sort entries in tables by columns
 	5. Search with filters id, status
 	6. Toggle status filter selection on arc click
+	7. When no nodes are running show something like No Nodes running
+		And the ringSystem should also show (?)
+	8. When the nodes go down it's not unregistering from the hub even after an hour
+	9. Add ctrl + / for showing keyboard shortcuts modal
+	10. auto generate shortcuts modal
+	11. when searching keybinds should be paused
 */
 
 const NODES_QUERY = loader("../../graphql/grid.gql");
@@ -59,17 +69,10 @@ enum PaginationDispatchTypes {
 	clearFilter,
 }
 
-enum PagenavType {
+export enum PagenavType {
 	next = "next",
 	prev = "prev",
 }
-
-export const ConsoleKeyCombinations = {
-	nextPage: { keys: ["n", "N", "right"], desc: "Next page in table" },
-	prevPage: { keys: ["p", "P", "left"], desc: "Previous page in table" },
-	esc: { keys: ["esc"], desc: "Clear selected filter" },
-	show: { keys: ["ctrl + /"], desc: "Show/Hide this page" },
-};
 
 interface PaginationDispatchArgs {
 	page?: number;
@@ -236,19 +239,20 @@ export default function Console(props: {
 		const countHash: {
 			[x: string]: number;
 		} = {};
+		LABELS.forEach((l) => (countHash[l] = 0));
 
-		gridInfo.grid.nodes.forEach((node: NodeType) => {
-			if (countHash[node.status] === undefined) countHash[node.status] = 0;
-
-			countHash[node.status] += 1;
-		});
+		gridInfo.grid.nodes.forEach(
+			(node: NodeType) => (countHash[node.status] += 1)
+		);
 
 		console.log(countHash, gridInfo.grid.nodes);
 
 		const sum = Object.values(countHash).reduce((a, b) => a + b, 0);
 		// Initialize the 4 rings
 		LABELS.forEach((l, i) => {
-			addRing(Math.round((countHash[l] / sum) * 100), i);
+			const percent = Math.round((countHash[l] / sum) * 100);
+			addRing(percent, i);
+			console.log(countHash[l], percent);
 		});
 	};
 
@@ -307,41 +311,9 @@ export default function Console(props: {
 
 	// On mount registers keybinds
 	useEffect(() => {
-		// register keybinds
-		// [N, n, ->] => Next page
-		// [P, p, <-] => Previous page
-		// ESC => clear filter
-
-		// Note: using keyboardJS for handling key combinations
-		// Currently no key combinations are registered
-
-		// TODO add ctrl + / for showing keyboard shortcuts modal
-		// TODO auto generate shortcuts modal
-		// TODO when searching keybinds should be paused
-		keyboardJS.bind(ConsoleKeyCombinations.nextPage.keys, () => {
-			let btn = document.querySelector(
-				`#${PagenavType.next}-page`
-			) as HTMLButtonElement;
-			btn.click();
-		});
-
-		keyboardJS.bind(ConsoleKeyCombinations.prevPage.keys, () => {
-			let btn = document.querySelector(
-				`#${PagenavType.prev}-page`
-			) as HTMLButtonElement;
-			btn.click();
-		});
-
-		keyboardJS.bind(ConsoleKeyCombinations.esc.keys, () => {
-			// Un select most recent selected component
-			// eg. remove filter
-			ringRef.current?.saveFilterState();
-		});
-
+		initializeBinds(ringRef, ringFilter);
 		// Unbind on unmount
-		return () => {
-			keyboardJS.reset();
-		};
+		return unBindKeys;
 	});
 
 	var params = new URLSearchParams(props.location.search);
@@ -378,7 +350,7 @@ export default function Console(props: {
 				<Query
 					query={NODES_QUERY}
 					// Handle variables on the server side
-					variables={{ count: 10, offset: 0 }}
+					// variables={{ count: 10, offset: 0 }}
 					// TODO remove <Query /> and try another way if two builds are not allowed
 					// rebuilds twice because of setting nodes
 					// do not use <Query /> if that's not intended
@@ -403,67 +375,103 @@ export default function Console(props: {
 								/>
 								<div
 									css={css`
-										width: 50vw;
+										// display: flex;
 									`}
 								>
-									{PaginationWidget}
-									<div>
-										<table className="table table-hover">
-											<thead>
-												<tr>
-													<th
-														scope="col"
-														// TODO make this call a reset sortfilter function
-														// onClick={addRing}
-														css={css`
-															cursor: pointer;
-														`}
-													>
-														#
-													</th>
-													<th
-														scope="col"
-														// onClick={}
-														css={css`
-															cursor: pointer;
-														`}
-													>
-														Name {sortbutton}
-													</th>
-													<th scope="col">
-														ID <SortIcon2 />
-													</th>
-													<th scope="col">
-														status{" "}
-														{paginationState.filterIndex !== -1 && (
-															<i>({LABELS[paginationState.filterIndex]})</i>
-														)}
-													</th>
-													<th scope="col"></th>
-												</tr>
-											</thead>
-											<tbody
-												css={css`
-													tr:hover td {
-														background: rgba(83, 83, 83, 0.3);
-													}
-												`}
-											>
-												{/* Map over the nodes */}
-												{paginationState.activeNodes.map((n, i) => (
-													<NodeRow
-														node={n}
-														key={n.id}
-														selected={paginationState.filterIndex}
-														index={
-															(paginationState.currentPage - 1) * numPerPage + i
+									<div
+										css={css`
+											// width: 50vw;
+										`}
+									>
+										{PaginationWidget}
+										<div>
+											<table className="table table-hover">
+												<thead>
+													<tr>
+														<th
+															scope="col"
+															// TODO make this call a reset sortfilter function
+															// onClick={addRing}
+															css={css`
+																cursor: pointer;
+															`}
+														>
+															#
+														</th>
+														<th
+															scope="col"
+															// onClick={}
+															css={css`
+																cursor: pointer;
+															`}
+														>
+															Name {sortbutton}
+														</th>
+														<th scope="col">
+															ID <SortIcon2 />
+														</th>
+														<th scope="col">
+															status{" "}
+															{paginationState.filterIndex !== -1 && (
+																<i>({LABELS[paginationState.filterIndex]})</i>
+															)}
+														</th>
+														<th scope="col"></th>
+													</tr>
+												</thead>
+												<tbody
+													css={css`
+														tr:hover td {
+															background: rgba(83, 83, 83, 0.3);
 														}
-													/>
-												))}
-											</tbody>
-										</table>
+													`}
+												>
+													{/* Map over the nodes */}
+													{paginationState.activeNodes.map((n, i) => (
+														<NodeRow
+															node={n}
+															key={n.id}
+															selected={paginationState.filterIndex}
+															index={
+																(paginationState.currentPage - 1) * numPerPage +
+																i
+															}
+														/>
+													))}
+												</tbody>
+											</table>
+										</div>
+										{PaginationWidget}
 									</div>
-									{PaginationWidget}
+									<div
+										id="node-modal"
+										css={css`
+											display: none;
+											width: 20vw;
+											background: aliceblue;
+											height: 90vh;
+											padding-left: 1vw;
+											transform: translate(2vw, -21vh);
+										`}
+									>
+										<i
+											onClick={() => {
+												let element = document.querySelector(
+													"#node-modal"
+												) as HTMLDivElement;
+												element.style.display =
+													element.style.display === "none" ? "block" : "none";
+											}}
+											className="fa fa-times"
+											title="Close Node Details Modal"
+											css={css`
+												position: absolute;
+												top: 10px;
+												right: 10px;
+												cursor: pointer;
+											`}
+										></i>
+									</div>
 								</div>
 							</React.Fragment>
 						);

@@ -5,7 +5,7 @@ import { loader } from "graphql.macro";
 import React from "react";
 import { ReactComponent as RightIcon } from "../../assets/icons/arrow.svg";
 import NodeType from "../../models/node";
-import { Status, LABELS } from "../Status";
+import { Status } from "../Status";
 
 // Not using this query for getting a single node
 // Because in Nodes.tsx we get all the attrs of all the existing Nodes
@@ -18,6 +18,7 @@ const NodeRow = React.memo(
 		node: NodeType;
 		index: number;
 		dispatch?: any;
+		/** Seleted Filter index to display it in the status */
 		selected?: number;
 	}) => {
 		const { node, index, selected = -1 } = props;

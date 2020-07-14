@@ -21,11 +21,11 @@ import NodeInfo from "./screens/Node/NodeInfo/NodeInfo";
 const cache = new InMemoryCache();
 const link = new HttpLink({
 	// document.location.protocol + "//" + document.location.host + "/graphql"
-	// uri: "http://localhost:4444/graphql",
-	uri: "http://localhost:5000/graphql",
+	uri: "http://localhost:4444/graphql",
+	// uri: "http://localhost:5000/graphql",
 });
 
-const client = new ApolloClient({
+export const client = new ApolloClient({
 	cache,
 	link,
 });
@@ -34,9 +34,10 @@ declare global {
 	interface Window {
 		rerunSearch: VoidFunction;
 		pbar: any;
+		pauseUpdates: boolean;
+		updatesRunning: boolean;
 	}
 }
-
 
 Modal.setAppElement("#root");
 
