@@ -211,6 +211,7 @@ const RingSystem = React.memo(
 			>
 				<div
 					css={css`
+						z-index: 1; // ontop of the clear option at z-index 0
 						width: 40%;
 						position: relative;
 						height: ${radius * 2}px;

@@ -4,7 +4,28 @@ import "../../css/common.css";
 import styles from "./Help.module.css";
 import React from "react";
 
-export default function HelpPage() {
+interface BasePropsType {
+	history: {
+		action: string;
+		length: number;
+	};
+	location: {
+		hash: string;
+		pathname: string;
+		search: string;
+		state: any;
+	};
+	match: {
+		isExact: boolean;
+		params: { [key: string]: string };
+		path: string;
+		url: string;
+	};
+}
+
+export default function HelpPage(props: BasePropsType) {
+	console.log(props);
+
 	return (
 		<section id="body">
 			<div className="padding highlightable">
@@ -16,7 +37,9 @@ export default function HelpPage() {
 				</header>
 			</div>
 			<div className="container">
-				<p>Whoops! The URL specified routes to this help page.</p>
+				{!["/home", "/"].includes(props.location.pathname) && (
+					<p>Whoops! The URL specified routes to this help page.</p>
+				)}
 				<p>
 					For more information about Selenium Grid Hub please see the{" "}
 					<a href="http://docs.seleniumhq.org/docs/07_selenium_grid.jsp">
@@ -26,8 +49,9 @@ export default function HelpPage() {
 					<a href="https://github.com/SeleniumHQ/selenium/wiki/Grid2">wiki</a>.
 				</p>
 				<p>
-					Or perhaps you are looking for the Selenium Grid Hub{" "}
-					<Link to="/console">console</Link>.
+					{!["/home", "/"].includes(props.location.pathname) &&
+						"Or perhaps you are looking for the "}
+					Selenium Grid Hub <Link to="/console">console</Link>.
 				</p>
 				<p>Happy Testing!</p>
 				<hr />

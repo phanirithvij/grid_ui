@@ -42,32 +42,18 @@ const Ring = React.memo((props: RingProps) => {
 		// 	drop-shadow(1px -1px 0px #111) drop-shadow(-1px -1px 0px #111);
 	`;
 
-	const circle = (
-		<circle
+	const svg = (
+		<svg
 			tabIndex={label ? 0 : undefined}
 			data-trigger-action={FocusTriggerActions.filterSelected}
 			data-trigger-filter-label={label}
-			className="progress-ring__circle"
-			stroke={color}
-			fill="transparent"
-			strokeWidth={highlight ? stroke + 4 : stroke}
-			strokeDasharray={circumference + " " + circumference}
-			style={{ strokeDashoffset }}
-			r={normalizedRadius}
-			cx={radius}
-			cy={radius}
-		/>
-	);
-
-	return (
-		<svg
 			id={id}
 			height={radius * 2}
 			width={radius * 2}
 			css={css`
 				position: absolute;
 				${highlight ? highlightCSS : ""}
-				z-index: 100;
+				z-index: 1;
 				.progress-ring__circle {
 					transition: 0.35s stroke-dashoffset, 0.35s transform;
 					// -90deg axis compensation
@@ -76,14 +62,30 @@ const Ring = React.memo((props: RingProps) => {
 				}
 			`}
 		>
+			<circle
+				className="progress-ring__circle"
+				stroke={color}
+				fill="transparent"
+				strokeWidth={highlight ? stroke + 4 : stroke}
+				strokeDasharray={circumference + " " + circumference}
+				style={{ strokeDashoffset }}
+				r={normalizedRadius}
+				cx={radius}
+				cy={radius}
+			/>{" "}
+		</svg>
+	);
+
+	return (
+		<React.Fragment>
 			{label ? (
 				<Tippy content={label} trigger="focus">
-					{circle}
+					{svg}
 				</Tippy>
 			) : (
-				circle
+				svg
 			)}
-		</svg>
+		</React.Fragment>
 	);
 });
 

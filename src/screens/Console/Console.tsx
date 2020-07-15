@@ -17,25 +17,21 @@ import NodeType from "../../models/node";
 import PaginationState from "../../models/pagination";
 import RingDetails from "../../models/rings";
 import "./Console.css";
-import {
-	ConsoleKeyCombinations,
-	unBindKeys,
-	initializeBinds,
-} from "./Console.keybinds";
+import { initializeKeyBinds, unBindKeys } from "./Console.keybinds";
 
 /**
  * TODO
 	1. add a pagination variable to the query
 	2. pagination component which queries based on page from server
-	3. Write a RingController class which allows calling `filter(tag);`
+	// 3. Write a RingController class which allows calling `filter(tag);`
 	4. Sort entries in tables by columns
 	5. Search with filters id, status
-	6. Toggle status filter selection on arc click
+	// 6. Toggle status filter selection on arc click
 	7. When no nodes are running show something like No Nodes running
 		And the ringSystem should also show (?)
 	8. When the nodes go down it's not unregistering from the hub even after an hour
-	9. Add ctrl + / for showing keyboard shortcuts modal
-	10. auto generate shortcuts modal
+	// 9. Add ctrl + / for showing keyboard shortcuts modal
+	// 10. auto generate shortcuts modal
 	11. when searching keybinds should be paused
 */
 
@@ -311,10 +307,10 @@ export default function Console(props: {
 
 	// On mount registers keybinds
 	useEffect(() => {
-		initializeBinds(ringRef, ringFilter);
+		initializeKeyBinds(ringRef, ringFilter);
 		// Unbind on unmount
 		return unBindKeys;
-	});
+	}, []);
 
 	var params = new URLSearchParams(props.location.search);
 	if (params.get("filter") != null) {
@@ -375,11 +371,12 @@ export default function Console(props: {
 								/>
 								<div
 									css={css`
-										// display: flex;
+										display: flex;
 									`}
 								>
 									<div
 										css={css`
+											width: 70%;
 											// width: 50vw;
 										`}
 									>
@@ -446,10 +443,10 @@ export default function Console(props: {
 									<div
 										id="node-modal"
 										css={css`
-											display: none;
-											width: 20vw;
+											min-width: 290px;
+											width: 23.5vw;
 											background: aliceblue;
-											height: 90vh;
+											height: 130vh;
 											padding-left: 1vw;
 											transform: translate(2vw, -21vh);
 										`}

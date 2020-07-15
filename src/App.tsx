@@ -2,7 +2,7 @@ import React from "react";
 import { InMemoryCache } from "apollo-cache-inmemory";
 import { ApolloClient } from "apollo-client";
 import { HttpLink } from "apollo-link-http";
-import Modal from "react-modal";
+import ReactModal from "react-modal";
 import { ApolloProvider } from "react-apollo";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 
@@ -21,8 +21,8 @@ import NodeInfo from "./screens/Node/NodeInfo/NodeInfo";
 const cache = new InMemoryCache();
 const link = new HttpLink({
 	// document.location.protocol + "//" + document.location.host + "/graphql"
-	uri: "http://localhost:4444/graphql",
-	// uri: "http://localhost:5000/graphql",
+	// uri: "http://localhost:4444/graphql",
+	uri: "http://localhost:5000/graphql",
 });
 
 export const client = new ApolloClient({
@@ -39,7 +39,7 @@ declare global {
 	}
 }
 
-Modal.setAppElement("#root");
+ReactModal.setAppElement("#root");
 
 function App() {
 	return (

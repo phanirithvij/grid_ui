@@ -1,34 +1,56 @@
 import keyboardJS from "keyboardjs";
-import { PagenavType } from "./Console";
 import { RingRef } from "../../components/RingSystem/RingSystem";
 import { LABELS } from "../../components/Status";
+import { PagenavType } from "./Console";
 
-export const ConsoleKeyCombinations = {
+interface KeyCombinationInfo {
+	keys: string[];
+	desc: string;
+	subdescs?: string[];
+}
+
+export const ConsoleKeyCombinations: { [key: string]: KeyCombinationInfo } = {
 	nextPage: { keys: ["n", "N", "right"], desc: "Next page in table" },
 	prevPage: { keys: ["p", "P", "left"], desc: "Previous page in table" },
-	esc: { keys: ["esc"], desc: "Clear selected filter" },
+	esc: {
+		keys: ["esc"],
+		desc: "Esc key can do these:",
+		subdescs: [
+			"Clears current tab focus",
+			"Clears selected filter",
+			"Closes the keyboard shortcuts reference",
+		],
+	},
 	show: { keys: ["ctrl + /"], desc: "Show/Hide this page" },
+	enter: {
+		keys: ["enter"],
+		desc: "Enter key when used with tab focus will:",
+		subdescs: [
+			"Opens Node Modals on the right if focused on an arrow",
+			"Filters nodes by status if focused on rings",
+		],
+	},
 };
 
 /** A trigger type which is used to determine the type of the focus actions */
 export enum FocusTriggerActions {
-  /** Ring keyboardfocus triggers Ring.tsx*/
-	filterSelected = 'filterSelected',
-  /** Triggered when focused on the arrow icons in NodeRow, NodeRow.tsx */
-	openNodeModal = 'openNodeModal',
+	/** Ring keyboardfocus triggers Ring.tsx*/
+	filterSelected = "filterSelected",
+	/** Triggered when focused on the arrow icons in NodeRow, NodeRow.tsx */
+	openNodeModal = "openNodeModal",
 }
 
 /** The dataset values for focus actions */
 export interface FocusActionDataset extends DOMStringMap {
-  /** Focus trigger action type */
-  triggerAction: FocusTriggerActions;
-  /** The LABEL of the selected filter from the defined LABELS array */
+	/** Focus trigger action type */
+	triggerAction: FocusTriggerActions;
+	/** The LABEL of the selected filter from the defined LABELS array */
 	triggerFilterLabel?: string;
 }
 
 /** A function which handles the initialiazation of keyboard shortcuts for this component */
-export function initializeBinds(
-  /* These arguments are needed to execute the keyboad actions */
+export function initializeKeyBinds(
+	/* These arguments are needed to execute the keyboad actions */
 	ringRef: React.RefObject<RingRef>,
 	ringFilter: (filterIndex: number) => void
 ) {
@@ -40,6 +62,9 @@ export function initializeBinds(
 	// Note: using keyboardJS for handling key combinations
 	// Currently no key combinations are registered
 
+	console.log("console bef", keyboardJS.getContext());
+	keyboardJS.setContext(`Console`);
+	console.log("console afts", keyboardJS.getContext());
 	keyboardJS.bind(ConsoleKeyCombinations.nextPage.keys, () => {
 		let btn = document.querySelector(
 			`#${PagenavType.next}-page`
@@ -85,6 +110,9 @@ export function initializeBinds(
 	});
 }
 
+/** Resets the current keybinds */
 export function unBindKeys() {
-	keyboardJS.reset();
+	keyboardJS.withContext("Console", () => {
+		keyboardJS.reset();
+	});
 }

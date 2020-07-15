@@ -9,6 +9,7 @@ import "../../css/icons.css";
 import styles from "./NavBar.module.css";
 import searchHighlight from "../../core/Search";
 import "./NavBar.css";
+import KeyBoardHelp from "../KeyBoard/KeyBoardHelp";
 
 /**
  * 	NavBar component, includes search bar and search functions
@@ -41,9 +42,7 @@ export default function NavBar() {
 
 	return (
 		<React.Fragment>
-			<nav
-				id="sidebar"
-			>
+			<nav id="sidebar">
 				<div id="header-wrapper">
 					<div id="header" style={{ height: "70px" }}>
 						<Link id="logo" to="/home">
@@ -154,6 +153,7 @@ export default function NavBar() {
 						</li>
 					</ul>
 				</div>
+				<KeyBoardHelp />
 			</nav>
 		</React.Fragment>
 	);
