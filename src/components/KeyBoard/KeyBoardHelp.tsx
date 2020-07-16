@@ -6,8 +6,9 @@ import keyboardJS from "keyboardjs";
 import "./Keyboard.css";
 import { ConsoleKeyCombinations } from "../../screens/Console/Console.keybinds";
 import Tippy from "@tippyjs/react";
+import { GridConfig } from "../../config";
 
-const ToggleKeyComb = "ctrl + /";
+const ToggleKeyComb = GridConfig.globalKeybinds.toggleKeybindsPage;
 
 export default function KeyBoardHelp() {
 	let [showModal, setShowModal] = useState(false);
@@ -16,9 +17,9 @@ export default function KeyBoardHelp() {
 		keyboardJS.bind(
 			ToggleKeyComb,
 			/*
-				Pressed in not getting fired on the very first time
+				Pressed is not getting fired on the very first time
 				So using released callback which acts the same
-				TODO see if this issue occurs at other keybinds
+				(TODO:P5) see why this issue doesn't occur at other keybinds
 			*/
 			null,
 			() => {
@@ -72,7 +73,12 @@ export default function KeyBoardHelp() {
 									}
 								`}
 							>
-								<pre>{v.keys.join(" or ").replace("left", "←").replace("right", "→")}</pre>
+								<pre>
+									{v.keys
+										.join(" or ")
+										.replace("left", "←")
+										.replace("right", "→")}
+								</pre>
 								<span style={{ fontSize: "large" }}>{v.desc}</span>
 								{v.subdescs !== undefined &&
 									v.subdescs.map((subdesc) => (

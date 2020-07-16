@@ -1,4 +1,5 @@
-import Avatar from "@material-ui/core/Avatar";
+/** @jsx _jsx */
+import { css, jsx as _jsx } from "@emotion/core";
 import Card from "@material-ui/core/Card";
 import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
@@ -7,15 +8,15 @@ import Collapse from "@material-ui/core/Collapse";
 import { red } from "@material-ui/core/colors";
 import IconButton from "@material-ui/core/IconButton";
 import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
+import CloseIcon from "@material-ui/icons/Close";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import MoreVertIcon from "@material-ui/icons/MoreVert";
 import clsx from "clsx";
 import { loader } from "graphql.macro";
 import React from "react";
 import chromeLogo from "../../../assets/chrome.svg";
 import firefoxLogo from "../../../assets/firefox.svg";
 import unknownLogo from "../../../assets/unknown.svg";
+import NodeType from "../../../models/node";
 // import "./Node.css";
 
 // Not using this query for getting a single node
@@ -50,16 +51,16 @@ const useStyles = makeStyles((theme: Theme) =>
 );
 
 export default function NodeInfo(props: {
-	match: {
+	node: NodeType | undefined;
+	match?: {
 		isExact: boolean;
 		params: { id: string };
 		path: string;
 		url: string;
 	};
 }) {
-	console.log(props);
-	const index = parseInt(props.match.params.id);
-	const node: any = {};
+	const index = parseInt(props.match ? props.match.params.id : "0");
+	const node = props.node;
 
 	function getLogo(browserName: string): string {
 		switch (browserName) {
@@ -75,22 +76,21 @@ export default function NodeInfo(props: {
 	}
 
 	const classes = useStyles();
-	const [expanded, setExpanded] = React.useState(false);
+	// By default it will be expanded
+	const [expanded, setExpanded] = React.useState(true);
 
-	const handleExpandClick = () => {
-		setExpanded(!expanded);
-	};
+	const handleExpandClick = () => setExpanded((exp) => !exp);
 
 	let rawDetails = (
 		<div>
-			<p>browserTimeout: 0</p>
-			<p>debug: false</p>
-			<p>host: 192.168.43.159</p>
-			<p>port: 25052</p>
-			<p>role: node</p>
-			<p>timeout: 1800</p>
-			<p>cleanUpCycle: 5000</p>
-			<p>maxSession: 5</p>
+			<pre>browserTimeout: 0</pre>
+			<pre>debug: false</pre>
+			<pre>host: 192.168.43.159</pre>
+			<pre>port: 25052</pre>
+			<pre>role: node</pre>
+			<pre>timeout: 1800</pre>
+			<pre>cleanUpCycle: 5000</pre>
+			<pre>maxSession: 5</pre>
 			<p>
 				{
 					"capabilities: Capabilities {browserName: firefox, marionette: true, maxInstances: 5, platform: LINUX, platformName: LINUX, seleniumProtocol: WebDriver, server:CONFIG_UUID: 028e470d-4b9a-4436-8d41-922...}"
@@ -114,81 +114,76 @@ export default function NodeInfo(props: {
 		</div>
 	);
 
+	if (node === undefined) return <React.Fragment></React.Fragment>;
+
+	console.log(node);
+
 	let logos = (
 		<div>
 			id : {node.id}, OS : {/* node.platform */ "LINUX"}
-			{node.capabilities?.map(
-				(c: {
-					serverConfigUUID: string | number;
-					maxInstances: number;
-					browserName: string;
-				}) => (
-					<div key={c.serverConfigUUID}>
-						{[...Array(c.maxInstances)].map((_, i) => (
-							<img
-								key={i}
-								alt={c.browserName}
-								src={getLogo(c.browserName)}
-								width="16"
-								height="16"
-								title={JSON.stringify(c)}
-								style={{ float: "left" }}
-							/>
-						))}
-					</div>
-				)
-			)}
+			{node.capabilities?.map((c) => (
+				<div key={c.browserName}>
+					{[...Array(c.slots)].map((_, i) => (
+						<img
+							key={i}
+							alt={c.browserName}
+							src={getLogo(c.browserName)}
+							width="16"
+							height="16"
+							title={JSON.stringify(c)}
+							style={{ float: "left" }}
+						/>
+					))}
+				</div>
+			))}
 		</div>
 	);
+
 	return (
-		<section id="body">
-			<div id="overlay"></div>
-			<div
-				className="highlightable padding"
-				style={{
-					height: "500px",
-				}}
-			>
-				<Card className={classes.root}>
-					<CardHeader
-						avatar={
-							<Avatar aria-label="node" className={classes.avatar}>
-								{index}
-							</Avatar>
-						}
-						action={
-							<IconButton aria-label="settings">
-								<MoreVertIcon />
-							</IconButton>
-						}
-						title={`${node.role}, DefaultRemoteProxy (version : 3.141.59)`}
-						subheader="TODO: last active time"
-					/>
-					<CardContent>
-						<Typography variant="body2" color="textSecondary" component="p">
-							// TODO show important info for this node
-						</Typography>
-						{logos}
-					</CardContent>
-					<CardActions disableSpacing>
-						<IconButton
-							className={clsx(classes.expand, {
-								[classes.expandOpen]: expanded,
-							})}
-							onClick={handleExpandClick}
-							aria-expanded={expanded}
-							aria-label="show more"
-						>
-							<ExpandMoreIcon />
-						</IconButton>
-					</CardActions>
-					<Collapse in={expanded} timeout="auto" unmountOnExit>
-						<CardContent>
-							<div>{rawDetails}</div>
-						</CardContent>
-					</Collapse>
-				</Card>
-			</div>
-		</section>
+		<Card
+			className={classes.root}
+			css={css`
+				padding-top: 30px;
+				padding-right: 1vw;
+				padding-left: 1vw;
+				transform: translate(2vw, -21vh);
+			`}
+		>
+			<CardHeader
+				// avatar={
+				// 	<Avatar aria-label="node" className={classes.avatar}>
+				// 		{index}
+				// 	</Avatar>
+				// }
+				action={
+					<IconButton aria-label="close">
+						<CloseIcon />
+					</IconButton>
+				}
+				title={`DefaultRemoteProxy (version : TODO get selenium version from server)`}
+				subheader="TODO: last active time"
+			/>
+			<CardContent>
+				{/* <Typography variant="body2" color="textSecondary" component="p">
+					// TODO show important info for this node
+				</Typography> */}
+				{logos}
+			</CardContent>
+			<CardActions disableSpacing>
+				<IconButton
+					className={clsx(classes.expand, {
+						[classes.expandOpen]: expanded,
+					})}
+					onClick={handleExpandClick}
+					aria-expanded={expanded}
+					aria-label="show more"
+				>
+					<ExpandMoreIcon />
+				</IconButton>
+			</CardActions>
+			<Collapse in={expanded} timeout="auto" unmountOnExit>
+				<CardContent>{rawDetails}</CardContent>
+			</Collapse>
+		</Card>
 	);
 }

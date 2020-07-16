@@ -10,14 +10,19 @@ export default function NodeModal(props: { id: string }) {
 			css={css`
 				min-width: 290px;
 				width: 23.5vw;
-				background: aliceblue;
+				background-image: linear-gradient(
+					-90.19deg,
+					#ffffff 80.01%,
+					#dbffe5 99.64%
+				);
+				background-position: center 3px;
 				height: 130vh;
 				padding-top: 30px;
 				padding-right: 1vw;
 				padding-left: 1vw;
 				transform: translate(2vw, -21vh);
-				border-left: 1px solid;
-				border-top: 1px solid;
+				// border-left: 1px solid;
+				// border-top: 1px solid;
 			`}
 		>
 			<i

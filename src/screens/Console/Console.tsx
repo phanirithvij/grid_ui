@@ -4,10 +4,9 @@ import { loader } from "graphql.macro";
 import Pagination from "rc-pagination";
 import "rc-pagination/assets/index.css";
 import localeInfo from "rc-pagination/lib/locale/en_US";
-import React, { useEffect, useReducer, useRef } from "react";
+import React, { useEffect, useReducer, useRef, useState } from "react";
 import { Query, QueryResult } from "react-apollo";
 import { ReactComponent as SortIcon2 } from "../../assets/icons/sorticon-plain.svg";
-import NodeModal from "../../components/Node/NodeModal/NodeModal";
 import NodeRow from "../../components/Node/NodeRow";
 import RingSystem, { RingRef } from "../../components/RingSystem/RingSystem";
 import SortButton, { SelectState } from "../../components/SortButton";
@@ -20,6 +19,7 @@ import RingDetails from "../../models/rings";
 import "./Console.css";
 import { initializeKeyBinds, unBindKeys } from "./Console.keybinds";
 import { GridConfig } from "../../config";
+import NodeInfo from "../Node/NodeInfo/NodeInfo";
 
 /**
  * TODO
@@ -307,6 +307,8 @@ export default function Console(props: {
 		}
 	};
 
+	let [modalNode, setModalNode] = useState<NodeType | undefined>();
+
 	// On mount registers keybinds
 	useEffect(() => {
 		initializeKeyBinds(ringRef, ringFilter);
@@ -430,6 +432,7 @@ export default function Console(props: {
 														<NodeRow
 															node={n}
 															key={n.id}
+															dispatch={setModalNode}
 															selected={paginationState.filterIndex}
 															index={
 																(paginationState.currentPage - 1) * numPerPage +
@@ -442,7 +445,8 @@ export default function Console(props: {
 										</div>
 										{PaginationWidget}
 									</div>
-									<NodeModal id={"3"} />
+									{/* <NodeModal id={"3"} /> */}
+									<NodeInfo node={modalNode} />
 								</div>
 							</React.Fragment>
 						);

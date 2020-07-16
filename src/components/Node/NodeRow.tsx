@@ -17,7 +17,7 @@ const NodeRow = React.memo(
 	(props: {
 		node: NodeType;
 		index: number;
-		dispatch?: any;
+		dispatch: (node: NodeType) => void;
 		/** Seleted Filter index to display it in the status */
 		selected?: number;
 	}) => {
@@ -47,8 +47,9 @@ const NodeRow = React.memo(
 							cursor: pointer;
 						`}
 						data-index={index}
+						data-id={node.id}
 						// TODO link to modal page
-						onClick={() => console.log(index)}
+						onClick={() => props.dispatch(node)}
 					>
 						<RightIcon />
 					</td>

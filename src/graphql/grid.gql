@@ -5,6 +5,7 @@ query {
 			id
 			uri
 			status
+			capabilities
 		}
 		totalSlots
 		usedSlots

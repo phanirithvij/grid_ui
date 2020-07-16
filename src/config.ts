@@ -23,4 +23,10 @@ export const GridConfig = {
 		process.env.NODE_ENV === "development"
 			? "http://localhost:4444/graphql"
 			: document.location.protocol + "//" + document.location.host + "/graphql",
+
+	/** Keybinds config */
+	globalKeybinds: {
+		toggleKeybindsPage: "ctrl + /",
+	},
+  /* Look at console.keybinds.ts for keybinds for the console.tsx */
 };
