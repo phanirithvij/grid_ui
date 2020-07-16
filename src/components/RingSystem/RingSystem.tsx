@@ -10,6 +10,7 @@ import RingDetails from "../../models/rings";
 import { LABELS } from "../Status";
 import ColorInfo from "./ColorInfo/ColorInfo";
 import Ring from "./Ring/Ring";
+import { GridConfig } from "../../config";
 
 export interface RingRef {
 	/** Saves the filter state based on the index. Pass -1 to clear the filter, default: -1 */
@@ -42,8 +43,8 @@ const RingSystem = React.memo(
 	React.forwardRef((props: RingSystemProps, ref: Ref<RingRef>) => {
 		let {
 			details: { count, progresses },
-			radius = 80,
-			stroke = 10,
+			radius = GridConfig.ringsystem.defaultRingRadius,
+			stroke = GridConfig.ringsystem.defaultRingStroke,
 			showLabels = false,
 			// TODO document this
 			// Look at all possible variables that can be used in the center

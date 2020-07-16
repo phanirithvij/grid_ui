@@ -5,8 +5,6 @@ query {
 			id
 			uri
 			status
-			maxSession
-			capabilities
 		}
 		totalSlots
 		usedSlots

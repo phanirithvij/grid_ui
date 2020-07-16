@@ -24,8 +24,6 @@ interface BasePropsType {
 }
 
 export default function HelpPage(props: BasePropsType) {
-	console.log(props);
-
 	return (
 		<section id="body">
 			<div className="padding highlightable">

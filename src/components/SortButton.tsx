@@ -21,7 +21,6 @@ export default function SortButton({
 	let [state, setState] = useState(initialState);
 
 	const onClickicon = (x: React.MouseEvent<SVGSVGElement, MouseEvent>) => {
-		console.log(x);
 		state === SelectState.up
 			? setState(SelectState.down)
 			: setState(SelectState.up);

@@ -47,6 +47,7 @@ const NodeRow = React.memo(
 							cursor: pointer;
 						`}
 						data-index={index}
+						// TODO link to modal page
 						onClick={() => console.log(index)}
 					>
 						<RightIcon />

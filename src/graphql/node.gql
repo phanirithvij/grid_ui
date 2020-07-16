@@ -4,14 +4,6 @@ query NodeQuery($id: String!) {
 		uri
 		status
 		maxSession
-		capabilities {
-			browserName
-			marionette
-			maxInstances
-			platform
-			platformName
-			seleniumProtocol
-			serverConfigUUID
-		}
+		capabilities
 	}
 }

@@ -10,7 +10,7 @@ import Tippy from "@tippyjs/react";
 const ToggleKeyComb = "ctrl + /";
 
 export default function KeyBoardHelp() {
-	let [showModal, setShowModal] = useState(true);
+	let [showModal, setShowModal] = useState(false);
 	const handleCloseModal = () => setShowModal(false);
 	useEffect(() => {
 		keyboardJS.bind(
@@ -22,7 +22,6 @@ export default function KeyBoardHelp() {
 			*/
 			null,
 			() => {
-				console.log("released");
 				// Here an important thing to note is that
 				// if we use showModal variable and call `setShowModal(!showModal)`
 				// the showmodal is always false because it is pass by value
@@ -73,7 +72,7 @@ export default function KeyBoardHelp() {
 									}
 								`}
 							>
-								<pre>{v.keys.join(" or ")}</pre>
+								<pre>{v.keys.join(" or ").replace("left", "←").replace("right", "→")}</pre>
 								<span style={{ fontSize: "large" }}>{v.desc}</span>
 								{v.subdescs !== undefined &&
 									v.subdescs.map((subdesc) => (

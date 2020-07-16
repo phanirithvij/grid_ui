@@ -62,9 +62,7 @@ export function initializeKeyBinds(
 	// Note: using keyboardJS for handling key combinations
 	// Currently no key combinations are registered
 
-	console.log("console bef", keyboardJS.getContext());
 	keyboardJS.setContext(`Console`);
-	console.log("console afts", keyboardJS.getContext());
 	keyboardJS.bind(ConsoleKeyCombinations.nextPage.keys, () => {
 		let btn = document.querySelector(
 			`#${PagenavType.next}-page`

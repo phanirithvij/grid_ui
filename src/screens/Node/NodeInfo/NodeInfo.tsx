@@ -128,7 +128,6 @@ export default function NodeInfo(props: {
 							<img
 								key={i}
 								alt={c.browserName}
-								// data-debug={console.log(c)}
 								src={getLogo(c.browserName)}
 								width="16"
 								height="16"

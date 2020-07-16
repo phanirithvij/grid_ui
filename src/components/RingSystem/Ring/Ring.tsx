@@ -38,8 +38,8 @@ const Ring = React.memo((props: RingProps) => {
 
 	/* https://stackoverflow.com/a/58175279/8608146 */
 	const highlightCSS = css`
-		// filter: drop-shadow(2px 2px 0px #111) drop-shadow(-1px 1px 0px #111)
-		// 	drop-shadow(1px -1px 0px #111) drop-shadow(-1px -1px 0px #111);
+		filter: drop-shadow(2px 2px 0px #111) drop-shadow(-1px 1px 0px #111)
+			drop-shadow(1px -1px 0px #111) drop-shadow(-1px -1px 0px #111);
 	`;
 
 	const svg = (
@@ -54,6 +54,12 @@ const Ring = React.memo((props: RingProps) => {
 				position: absolute;
 				${highlight ? highlightCSS : ""}
 				z-index: 1;
+				// removes the border outline when focused
+				${highlight
+					? `:focus {
+						outline: -webkit-focus-ring-color auto 0px;
+					}`
+					: ""}
 				.progress-ring__circle {
 					transition: 0.35s stroke-dashoffset, 0.35s transform;
 					// -90deg axis compensation

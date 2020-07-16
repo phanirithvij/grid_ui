@@ -1,4 +1,4 @@
-/** @jsx _jsx*/
+/** @jsx _jsx */
 import { css, jsx as _jsx } from "@emotion/core";
 import { loader } from "graphql.macro";
 import Pagination from "rc-pagination";
@@ -7,6 +7,7 @@ import localeInfo from "rc-pagination/lib/locale/en_US";
 import React, { useEffect, useReducer, useRef } from "react";
 import { Query, QueryResult } from "react-apollo";
 import { ReactComponent as SortIcon2 } from "../../assets/icons/sorticon-plain.svg";
+import NodeModal from "../../components/Node/NodeModal/NodeModal";
 import NodeRow from "../../components/Node/NodeRow";
 import RingSystem, { RingRef } from "../../components/RingSystem/RingSystem";
 import SortButton, { SelectState } from "../../components/SortButton";
@@ -18,6 +19,7 @@ import PaginationState from "../../models/pagination";
 import RingDetails from "../../models/rings";
 import "./Console.css";
 import { initializeKeyBinds, unBindKeys } from "./Console.keybinds";
+import { GridConfig } from "../../config";
 
 /**
  * TODO
@@ -33,6 +35,7 @@ import { initializeKeyBinds, unBindKeys } from "./Console.keybinds";
 	// 9. Add ctrl + / for showing keyboard shortcuts modal
 	// 10. auto generate shortcuts modal
 	11. when searching keybinds should be paused
+  12. Move consts to a global config one for ts, one for css
 */
 
 const NODES_QUERY = loader("../../graphql/grid.gql");
@@ -41,8 +44,7 @@ interface GqlDataType {
 	grid: { nodes: NodeType[] };
 }
 
-// default for the <Pagination /> component
-const numPerPage = 8;
+const numPerPage = GridConfig.console.numEntriesPerPage;
 
 const initialPaginationState: PaginationState = {
 	allNodes: [],
@@ -440,35 +442,7 @@ export default function Console(props: {
 										</div>
 										{PaginationWidget}
 									</div>
-									<div
-										id="node-modal"
-										css={css`
-											min-width: 290px;
-											width: 23.5vw;
-											background: aliceblue;
-											height: 130vh;
-											padding-left: 1vw;
-											transform: translate(2vw, -21vh);
-										`}
-									>
-										<i
-											onClick={() => {
-												let element = document.querySelector(
-													"#node-modal"
-												) as HTMLDivElement;
-												element.style.display =
-													element.style.display === "none" ? "block" : "none";
-											}}
-											className="fa fa-times"
-											title="Close Node Details Modal"
-											css={css`
-												position: absolute;
-												top: 10px;
-												right: 10px;
-												cursor: pointer;
-											`}
-										></i>
-									</div>
+									<NodeModal id={"3"} />
 								</div>
 							</React.Fragment>
 						);
