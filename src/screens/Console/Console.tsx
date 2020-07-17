@@ -6,20 +6,21 @@ import "rc-pagination/assets/index.css";
 import localeInfo from "rc-pagination/lib/locale/en_US";
 import React, { useEffect, useReducer, useRef, useState } from "react";
 import { Query, QueryResult } from "react-apollo";
-import { ReactComponent as SortIcon2 } from "../../assets/icons/sorticon-plain.svg";
 import NodeRow from "../../components/Node/NodeRow";
 import RingSystem, { RingRef } from "../../components/RingSystem/RingSystem";
 import SortButton, { SelectState } from "../../components/SortButton";
 import { LABELS, LABEL_COLORS, StatusType } from "../../components/Status";
 import TopBar from "../../components/TopBar";
+import { GridConfig } from "../../config";
+import fetchStatusUpdates from "../../core/Status";
 import "../../css/common.css";
+import CapabilitiesType from "../../models/capabilities";
 import NodeType from "../../models/node";
 import PaginationState from "../../models/pagination";
 import RingDetails from "../../models/rings";
+import NodeInfo from "../Node/NodeInfo/NodeInfo";
 import "./Console.css";
 import { initializeKeyBinds, unBindKeys } from "./Console.keybinds";
-import { GridConfig } from "../../config";
-import NodeInfo from "../Node/NodeInfo/NodeInfo";
 
 /**
  * TODO
@@ -65,6 +66,7 @@ enum PaginationDispatchTypes {
 	initialiaze,
 	filterNodes,
 	clearFilter,
+	onStatusUpdate,
 }
 
 export enum PagenavType {
@@ -79,6 +81,7 @@ interface PaginationDispatchArgs {
 	type?: PagenavType;
 	filterIndex?: number;
 	pageCount?: number;
+	updates?: NodeType[];
 }
 
 function ringReducer(
@@ -115,7 +118,7 @@ function paginationReducer(
 		args,
 	}: { type: PaginationDispatchTypes; args?: PaginationDispatchArgs }
 ) {
-	let newState = { ...state };
+	let newState: PaginationState = { ...state };
 
 	switch (actionType) {
 		case PaginationDispatchTypes.initialiaze:
@@ -123,19 +126,29 @@ function paginationReducer(
 			newState = {
 				...state,
 				allNodes: allNodes!,
+				// nodes that should be on the first page
 				activeNodes: allNodes!.slice(0, numPerPage),
+				// no filter initially so all the nodes
 				filteredNodes: [...allNodes!],
 			};
 			return newState;
 
 		case PaginationDispatchTypes.onPagechange:
 			const { page, pageSize } = args!;
+			// Show active nodes among the filter nodes based on the page
 			newState.activeNodes = newState.filteredNodes.slice(
 				(page! - 1) * numPerPage,
 				(page! - 1) * numPerPage + pageSize!
 			);
 			newState.currentPage = page!;
 			newState.currentPageCount = pageSize!;
+			return newState;
+		case PaginationDispatchTypes.onStatusUpdate:
+			const { updates } = args!;
+			newState.allNodes.forEach((node, i) => {
+				node.status = updates![i].status;
+			});
+			console.log(newState.allNodes.map(node => node.status));
 			return newState;
 
 		case PaginationDispatchTypes.filterNodes:
@@ -213,6 +226,25 @@ export default function Console(props: {
 	// TODO sort by column
 	let sortbutton = SortButton({ initialState: SelectState.up });
 
+	/* Should Ideally just show notifications */
+	const handleStatusUpdates = (data: NodeType[]) => {
+		// Update table data
+		// Update ringsystem
+	};
+
+	useEffect(() => {
+		window.pauseUpdates = false;
+		fetchStatusUpdates(
+			handleStatusUpdates,
+			GridConfig.status.xhrPollingIntervalMillis,
+			"window.pauseUpdates"
+		);
+
+		return () => {
+			window.pauseUpdates = true;
+		};
+	}, []);
+
 	const addRing = (progress: number, index: number) => {
 		ringDispatch({ type: "addRing", args: { currentIndex: index, progress } });
 	};
@@ -229,9 +261,29 @@ export default function Console(props: {
 
 	const setInitialQLdata = (gridInfo: { grid: { nodes: NodeType[] } }) => {
 		// Initializes the data fetched from graphql
+
+		// TODO remove this after capabilities is fixed on the server
+		// parsing capabilities from string to capabilities[]
+		const nodes = gridInfo.grid.nodes.map((node: NodeType) => {
+			const capStr = (node.capabilities as unknown) as string;
+			if (capStr === "") return { ...node, capabilities: [] };
+			let json: { [key: string]: number } = JSON.parse(capStr);
+			let capabilities = Object.keys(json).map((key) => {
+				let data = key
+					.split(" ")
+					.slice(1)
+					.join("")
+					.replace(/{|}/g, "")
+					.split(":");
+				return { [data[0]]: data[1], slots: json[key] };
+			});
+			let caps = (capabilities as unknown) as CapabilitiesType[];
+			const newnode: NodeType = { ...node, capabilities: caps };
+			return newnode;
+		});
 		paginationDispatch({
 			type: PaginationDispatchTypes.initialiaze,
-			args: { allNodes: gridInfo.grid.nodes },
+			args: { allNodes: nodes },
 		});
 
 		const countHash: {
@@ -243,14 +295,11 @@ export default function Console(props: {
 			(node: NodeType) => (countHash[node.status] += 1)
 		);
 
-		console.log(countHash, gridInfo.grid.nodes);
-
 		const sum = Object.values(countHash).reduce((a, b) => a + b, 0);
 		// Initialize the 4 rings
 		LABELS.forEach((l, i) => {
 			const percent = Math.round((countHash[l] / sum) * 100);
 			addRing(percent, i);
-			console.log(countHash[l], percent);
 		});
 	};
 
@@ -376,12 +425,12 @@ export default function Console(props: {
 								<div
 									css={css`
 										display: flex;
+										justify-content: space-between;
 									`}
 								>
 									<div
 										css={css`
-											width: 70%;
-											// width: 50vw;
+											width: ${modalNode ? "70" : "100"}%;
 										`}
 									>
 										{PaginationWidget}
@@ -406,10 +455,10 @@ export default function Console(props: {
 																cursor: pointer;
 															`}
 														>
-															Name {sortbutton}
+															Name
 														</th>
 														<th scope="col">
-															ID <SortIcon2 />
+															ID
 														</th>
 														<th scope="col">
 															status{" "}
@@ -433,7 +482,7 @@ export default function Console(props: {
 															node={n}
 															key={n.id}
 															dispatch={setModalNode}
-															selected={paginationState.filterIndex}
+															selectedFilterIndex={paginationState.filterIndex}
 															index={
 																(paginationState.currentPage - 1) * numPerPage +
 																i
@@ -445,8 +494,10 @@ export default function Console(props: {
 										</div>
 										{PaginationWidget}
 									</div>
-									{/* <NodeModal id={"3"} /> */}
-									<NodeInfo node={modalNode} />
+									<NodeInfo
+										node={modalNode}
+										closecallback={() => setModalNode(undefined)}
+									/>
 								</div>
 							</React.Fragment>
 						);

@@ -11,6 +11,7 @@ type _QueryResultType = { grid: { nodes: NodeType[] } };
 const fetchStatusUpdates = async (
 	callback: _CallbackType,
 	gapms = GAP_MILLIS,
+	/* TODO can use redux for global state management here */
 	controlFlag = "window.pauseUpdates"
 ) => {
 	if (eval(controlFlag) !== undefined && eval(controlFlag)) {

@@ -89,14 +89,6 @@ export default function NavBar() {
 								Hub
 								<i className="fas fa-check read-icon"></i>
 							</Link>
-
-							<ul>
-								<li data-nav-id="/node/1/" title="Node 1" className="dd-item">
-									<Link to="/node/1">
-										Node 1<i className="fas fa-check read-icon"></i>
-									</Link>
-								</li>
-							</ul>
 						</li>
 						<li data-nav-id="/docs/" title="Docs" className="dd-item parent">
 							<a href="https://www.selenium.dev/documentation/en/grid/">

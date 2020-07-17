@@ -3,25 +3,8 @@ import logo from "../../assets/selenium.png";
 import "../../css/common.css";
 import styles from "./Help.module.css";
 import React from "react";
+import { BasePropsType } from "../../models/props";
 
-interface BasePropsType {
-	history: {
-		action: string;
-		length: number;
-	};
-	location: {
-		hash: string;
-		pathname: string;
-		search: string;
-		state: any;
-	};
-	match: {
-		isExact: boolean;
-		params: { [key: string]: string };
-		path: string;
-		url: string;
-	};
-}
 
 export default function HelpPage(props: BasePropsType) {
 	return (

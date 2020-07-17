@@ -13,13 +13,13 @@ export const GridConfig = {
 
 	/** RingSystem.tsx */
 	ringsystem: {
-		defaultRingRadius: 80,
+		defaultRingRadius: 100,
 		defaultRingStroke: 10,
 	},
 
 	/** Server config */
 	serverUri:
-		// TODO add a config flag somewhere (?)
+		// TODO add a cli flag somewhere (?)
 		process.env.NODE_ENV === "development"
 			? "http://localhost:4444/graphql"
 			: document.location.protocol + "//" + document.location.host + "/graphql",

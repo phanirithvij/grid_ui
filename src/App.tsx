@@ -16,8 +16,8 @@ import Console from "./screens/Console/Console";
 // import SearchAppBar from "./components/AppBar/AppBar";
 import NavBar from "./components/NavBar/NavBar";
 import Hubpage from "./screens/Hub/Hub";
-import NodeInfo from "./screens/Node/NodeInfo/NodeInfo";
 import { GridConfig } from "./config";
+import NodePage from "./screens/Node/NodePage";
 
 const cache = new InMemoryCache();
 const link = new HttpLink({
@@ -48,7 +48,7 @@ function App() {
 				<Switch>
 					<Route exact path="/" component={Console} />
 					<Route exact path="/hub" component={Hubpage} />
-					<Route exact path="/node/:id" component={NodeInfo} />
+					<Route exact path="/node/:id" component={NodePage} />
 					<Route exact path="/home" component={HelpPage} />
 					<Route exact path="/console" component={Console} />
 					<Route component={HelpPage} />

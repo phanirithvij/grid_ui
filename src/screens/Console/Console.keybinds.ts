@@ -12,6 +12,7 @@ interface KeyCombinationInfo {
 export const ConsoleKeyCombinations: { [key: string]: KeyCombinationInfo } = {
 	nextPage: { keys: ["n", "N", "right"], desc: "Next page in table" },
 	prevPage: { keys: ["p", "P", "left"], desc: "Previous page in table" },
+	// TODO this `esc` isn't registered anywhere but esc key handling is in clearFilter
 	esc: {
 		keys: ["esc"],
 		desc: "Esc key can do these:",
@@ -20,6 +21,10 @@ export const ConsoleKeyCombinations: { [key: string]: KeyCombinationInfo } = {
 			"Clears selected filter",
 			"Closes the keyboard shortcuts reference",
 		],
+	},
+	clearFilter: {
+		keys: ["esc", "c"],
+		desc: "esc or c to clear current filter",
 	},
 	show: { keys: ["ctrl + /"], desc: "Show/Hide this page" },
 	enter: {
@@ -77,16 +82,20 @@ export function initializeKeyBinds(
 		btn.click();
 	});
 
-	keyboardJS.bind(ConsoleKeyCombinations.esc.keys, () => {
-		// Un select most recent selected component
-		// eg. remove filter
-		const focused = document.activeElement as HTMLElement;
-		// if nothing is focused or body is focused
-		// remove any selected filter
-		if (!focused || focused === document.body)
+	keyboardJS.bind(ConsoleKeyCombinations.clearFilter.keys, (ev) => {
+		console.log(ev?.key);
+		if (ev?.key === "Escape") {
+			const focused = document.activeElement as HTMLElement;
+			// if nothing is focused or body is focused
+			// remove any selected filter
+			if (!focused || focused === document.body)
+				ringRef.current?.saveFilterState();
+			// else remove any focused element
+			else focused.blur();
+			// ringRef.current?.saveFilterState();
+		} else if (ev?.key === "c") {
 			ringRef.current?.saveFilterState();
-		// else remove any focused element
-		else focused.blur();
+		}
 	});
 
 	keyboardJS.bind(["enter"], () => {

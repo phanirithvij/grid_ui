@@ -6,6 +6,7 @@ import React from "react";
 import { ReactComponent as RightIcon } from "../../assets/icons/arrow.svg";
 import NodeType from "../../models/node";
 import { Status } from "../Status";
+import { Link } from "react-router-dom";
 
 // Not using this query for getting a single node
 // Because in Nodes.tsx we get all the attrs of all the existing Nodes
@@ -19,15 +20,18 @@ const NodeRow = React.memo(
 		index: number;
 		dispatch: (node: NodeType) => void;
 		/** Seleted Filter index to display it in the status */
-		selected?: number;
+		selectedFilterIndex?: number;
 	}) => {
-		const { node, index, selected = -1 } = props;
+		const { node, index, selectedFilterIndex: selected = -1 } = props;
 		return (
 			// Wrapping in a fragment to avoid a not so meaningful lint issue
 			// Possibly a bug. To see what it is remove this top level fragment
 			<React.Fragment>
 				<tr
 					// Remove the vertical border in this table
+					onClick={() => {
+						console.log(node);
+					}}
 					css={css`
 						td {
 							border: 0 !important;
@@ -36,9 +40,10 @@ const NodeRow = React.memo(
 					`}
 				>
 					<th scope="row">{index + 1}</th>
-					{/* <td colSpan={2}>Larry the Bird</td> */}
 					<td>Node {index + 1}</td>
-					<td>{node.id}</td>
+					<td>
+						<Link to={`/node/${node.id}`}>{node.id}</Link>
+					</td>
 					<td>
 						<Status status={node.status} selected={selected} />
 					</td>

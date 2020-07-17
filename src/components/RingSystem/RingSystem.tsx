@@ -50,7 +50,7 @@ const RingSystem = React.memo(
 			// Look at all possible variables that can be used in the center
 			textFormat = ":freePercent:% free",
 			children,
-			ringFilterCallback = () => {},
+			ringFilterCallback = undefined,
 		} = props;
 		let normalizedRadius = radius - stroke;
 
@@ -151,6 +151,10 @@ const RingSystem = React.memo(
 		 * Handles the filtering of the shown stuff based on the clicked index
 		 */
 		const handleClick = (evt: React.MouseEvent<HTMLElement, MouseEvent>) => {
+			// If no callback was given it's just a normal no filter ring
+			if (ringFilterCallback === undefined) {
+				return;
+			}
 			const [x2, y2] = [evt.nativeEvent.offsetX, evt.nativeEvent.offsetY];
 			const currentFilterIndex = ringIndexFromCoords(x2, y2);
 
@@ -166,7 +170,7 @@ const RingSystem = React.memo(
 			if (filterIndex !== currentFilterIndex) {
 				setFilterIndex(currentFilterIndex);
 			}
-			ringFilterCallback(currentFilterIndex);
+			ringFilterCallback!(currentFilterIndex);
 		};
 
 		// A method to handle the tippy based on the mouseevent

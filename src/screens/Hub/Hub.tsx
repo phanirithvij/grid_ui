@@ -2,15 +2,16 @@
 import { css, jsx as _jsx } from "@emotion/core";
 import { loader } from "graphql.macro";
 import ProgressBar from "progressbar.js";
-import React, { useCallback, useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 import { Query, QueryResult } from "react-apollo";
 import RingSystem from "../../components/RingSystem/RingSystem";
-import { LABEL_COLORS, LABELS, StatusType } from "../../components/Status";
+import { LABELS, LABEL_COLORS, StatusType } from "../../components/Status";
 import TopBar from "../../components/TopBar";
 import "../../css/common.css";
 import NodeType from "../../models/node";
 import RingDetails from "../../models/rings";
 import "./Hub.css";
+import { GridSchema } from "../../models/grid";
 
 const NODES_QUERY = loader("../../graphql/grid.gql");
 
@@ -51,24 +52,39 @@ function ringReducer(state: RingDetails, action: { type: string; args?: any }) {
 
 export default function Hubpage() {
 	let [currentIndex] = useState(0);
-	let [usedSlots, totalSlots] = [2, 3];
+	let [slots, setSlots] = useState({ usedSlots: 0, totalSlots: 0 });
 	let [_renderedLoad, _setRenderedLoad] = useState(false);
 	let [dataAvailable, setDataAvailable] = useState<NodeType[]>([]);
 
-	const addRing = useCallback(() => {
-		ringDispatch({ type: "addRing", args: currentIndex });
-	}, [currentIndex]);
+	const initializeData = (gridInfo: GridSchema) => {
+		const countHash: {
+			[x: string]: number;
+		} = {};
+		LABELS.forEach((l) => (countHash[l] = 0));
 
-	// const updateRing = () => {
-	// 	ringDispatch({ type: "updateRing", args: currentIndex });
-	// };
+		gridInfo.grid.nodes.forEach(
+			(node: NodeType) => (countHash[node.status] += 1)
+		);
+
+		const sum = Object.values(countHash).reduce((a, b) => a + b, 0);
+		// Initialize the 4 rings
+		LABELS.forEach((l, i) => {
+			const percent = Math.round((countHash[l] / sum) * 100);
+			addRing(percent, i);
+		});
+
+		setDataAvailable(gridInfo.grid.nodes);
+		setSlots({
+			totalSlots: gridInfo.grid.totalSlots,
+			usedSlots: gridInfo.grid.usedSlots,
+		});
+	};
+
+	const addRing = (progress: number, index: number) => {
+		ringDispatch({ type: "addRing", args: { currentIndex: index, progress } });
+	};
 
 	const [details, ringDispatch] = useReducer(ringReducer, initialDetails);
-
-	// Initialize the 4 rings
-	useEffect(() => {
-		LABELS.forEach((_) => addRing());
-	}, [addRing]);
 
 	useEffect(() => {
 		if (_renderedLoad) return;
@@ -104,11 +120,11 @@ export default function Hubpage() {
 				}
 			) => {
 				bar.path.setAttribute("stroke", state.color);
-				var value = Math.round(bar.value() * totalSlots);
+				var value = Math.round(bar.value() * slots.totalSlots);
 				if (value === 0) {
 					bar.setText("");
 				} else {
-					bar.setText(`${value}/${totalSlots}`);
+					bar.setText(`${value}/${slots.totalSlots}`);
 				}
 
 				bar.text.style.color = state.color;
@@ -118,9 +134,9 @@ export default function Hubpage() {
 		bar.text.style.fontSize = "2rem";
 
 		// usedSlots/TotalSlots
-		bar.animate(usedSlots / totalSlots); // Number from 0.0 to 1.0
+		bar.animate(slots.usedSlots / slots.totalSlots); // Number from 0.0 to 1.0
 		_setRenderedLoad(true);
-	}, [dataAvailable, totalSlots, usedSlots, _renderedLoad]);
+	}, [dataAvailable, slots, _renderedLoad]);
 
 	return (
 		<section id="body">
@@ -141,7 +157,7 @@ export default function Hubpage() {
 						query={NODES_QUERY}
 						// TODO Handle variables on the server side
 						variables={{ count: 10, offset: 0 }}
-						onCompleted={(data: NodeType[]) => setDataAvailable(data)}
+						onCompleted={(data: GridSchema) => initializeData(data)}
 					>
 						{(result: QueryResult<GqlDataType>) => {
 							let { loading, error } = result;
