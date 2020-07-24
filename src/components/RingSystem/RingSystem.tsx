@@ -49,6 +49,7 @@ const RingSystem = React.memo(
 			// TODO document this
 			// Look at all possible variables that can be used in the center
 			textFormat = ":freePercent:% free",
+			// textFormat = ":freePercent:% free",
 			children,
 			ringFilterCallback = undefined,
 		} = props;
@@ -246,10 +247,15 @@ const RingSystem = React.memo(
 							transform: translate(-50%, -50%);
 						`}
 					>
+						{props.details.count == 0
+							? "Nothing running"
+							: props.details.progresses[0].progress + "% available"}
+						{/*
 						{textFormat.replace(
 							RegExp(/:freePercent:/g),
 							`${100 - totalProgress}`
 						)}
+						*/}
 					</div>
 					{[...Array(count)].map((_, i) => (
 						<Ring
@@ -287,10 +293,9 @@ const RingSystem = React.memo(
 						{filterIndex !== -1 && (
 							<Tippy
 								content={"clear filter"}
-								followCursor={true}
 								// To remove focus trigger
-								trigger={"mouseenter click"}
-								plugins={[followCursor]}
+								trigger={"mouseenter click focus"}
+								placement="right"
 							>
 								<button
 									css={css`

@@ -28,5 +28,5 @@ export const GridConfig = {
 	globalKeybinds: {
 		toggleKeybindsPage: "ctrl + /",
 	},
-  /* Look at console.keybinds.ts for keybinds for the console.tsx */
+	/* Look at console.keybinds.ts for keybinds for the console.tsx */
 };
